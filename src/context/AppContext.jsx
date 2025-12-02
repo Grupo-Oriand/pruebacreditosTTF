@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AppContext = createContext();
@@ -6,20 +7,29 @@ export const AppProvider = ({ children }) => {
   // Mock Data
   const [user, setUser] = useState(null); // Current logged in user
 
-  // Database Simulation
-  const [vehicles, setVehicles] = useState([
+  // Helper para inicializar estado desde localStorage
+  const getInitialState = (key, defaultValue) => {
+    const saved = localStorage.getItem(key);
+    return saved ? JSON.parse(saved) : defaultValue;
+  };
+
+  // Database Simulation con persistencia
+  const [vehicles, setVehicles] = useState(() => getInitialState('vehicles', [
     { id: 1, make: 'Toyota', model: 'Corolla', year: 2024, price: 25000, image: 'https://images.unsplash.com/photo-1517365830460-955ce3ccd263?auto=format&fit=crop&q=80&w=1000' },
     { id: 2, make: 'Ford', model: 'Mustang', year: 2023, price: 45000, image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=1000' },
     { id: 3, make: 'Tesla', model: 'Model 3', year: 2024, price: 42000, image: 'https://images.unsplash.com/photo-1536700503339-1e4b06520771?auto=format&fit=crop&q=80&w=1000' },
-  ]);
+  ]));
 
-  const [clients, setClients] = useState([
-    { id: 1, name: 'Juan Pérez', email: 'juan@example.com', phone: '555-0101', status: 'Active' },
-  ]);
+  const [clients, setClients] = useState(() => getInitialState('clients', [
+    { id: 1, name: 'Juan Pérez', email: 'juan@example.com', phone: '555-0101', status: 'Active', username: 'cliente1', password: 'password123' },
+  ]));
 
-  const [requests, setRequests] = useState([
-    // { id: 1, clientId: 1, vehicleId: 1, status: 'pending_docs', documents: {} }
-  ]);
+  const [requests, setRequests] = useState(() => getInitialState('requests', []));
+
+  // Guardar en localStorage cuando cambien los datos
+  useEffect(() => { localStorage.setItem('vehicles', JSON.stringify(vehicles)); }, [vehicles]);
+  useEffect(() => { localStorage.setItem('clients', JSON.stringify(clients)); }, [clients]);
+  useEffect(() => { localStorage.setItem('requests', JSON.stringify(requests)); }, [requests]);
 
   const login = (role, name) => {
     setUser({ role, name });
@@ -63,8 +73,8 @@ export const AppProvider = ({ children }) => {
         const updatedDocs = { ...r.documents, [docType]: true };
         // Check if all docs are uploaded
         const allUploaded = Object.values(updatedDocs).every(v => v);
-        return { 
-          ...r, 
+        return {
+          ...r,
           documents: updatedDocs,
           status: allUploaded ? 'review' : 'pending_docs'
         };

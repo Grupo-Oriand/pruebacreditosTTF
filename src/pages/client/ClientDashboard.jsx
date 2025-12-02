@@ -5,11 +5,15 @@ import { StatusBadge } from '../dealer/DealerDashboard';
 import { useNavigate } from 'react-router-dom';
 
 const ClientDashboard = () => {
-  const { requests, vehicles, uploadDocument, logout } = useApp();
+  const { user, requests, vehicles, clients, uploadDocument, logout } = useApp();
   const navigate = useNavigate();
 
-  // Simulate logged in client (ID 1 for demo)
-  const myRequest = requests.find(r => r.clientId === 1);
+  // Encontrar el cliente actual basado en el usuario logueado
+  // Buscamos por nombre ya que es lo que guardamos en el login
+  const currentClient = clients.find(c => c.name === user?.name);
+
+  // Buscar la solicitud asociada a este cliente
+  const myRequest = currentClient ? requests.find(r => r.clientId === currentClient.id) : null;
   const myVehicle = myRequest ? vehicles.find(v => v.id === myRequest.vehicleId) : null;
 
   const handleLogout = () => {
@@ -92,20 +96,20 @@ const ClientDashboard = () => {
             </h2>
 
             <div className="space-y-4">
-              <DocUploader 
-                title="Documento de Identidad" 
+              <DocUploader
+                title="Documento de Identidad"
                 description="Sube una foto clara de tu DNI o Pasaporte (Frente y Dorso)"
                 isUploaded={myRequest.documents.idCard}
                 onUpload={() => uploadDocument(myRequest.id, 'idCard')}
               />
-              <DocUploader 
-                title="Comprobante de Ingresos" 
+              <DocUploader
+                title="Comprobante de Ingresos"
                 description="Últimos 3 recibos de sueldo o declaración de impuestos"
                 isUploaded={myRequest.documents.incomeProof}
                 onUpload={() => uploadDocument(myRequest.id, 'incomeProof')}
               />
-              <DocUploader 
-                title="Comprobante de Domicilio" 
+              <DocUploader
+                title="Comprobante de Domicilio"
                 description="Factura de servicio (Luz, Agua, Gas) no mayor a 3 meses"
                 isUploaded={myRequest.documents.addressProof}
                 onUpload={() => uploadDocument(myRequest.id, 'addressProof')}
@@ -138,7 +142,7 @@ const DocUploader = ({ title, description, isUploaded, onUpload }) => (
         </div>
         <p className="text-sm text-slate-400">{description}</p>
       </div>
-      
+
       {!isUploaded ? (
         <button onClick={onUpload} className="ml-4 px-4 py-2 bg-dark-surface hover:bg-dark-border border border-dark-border rounded-lg text-sm font-medium text-primary-400 transition-colors flex items-center gap-2">
           <Upload className="w-4 h-4" /> Subir

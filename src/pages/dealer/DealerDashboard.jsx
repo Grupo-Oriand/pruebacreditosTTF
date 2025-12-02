@@ -10,7 +10,7 @@ const DealerDashboard = () => {
 
   // Forms State
   const [newVehicle, setNewVehicle] = useState({ make: '', model: '', year: '', price: '', image: '' });
-  const [newClient, setNewClient] = useState({ name: '', email: '', phone: '' });
+  const [newClient, setNewClient] = useState({ name: '', email: '', phone: '', idNumber: '', username: '', password: '' });
   const [selectedVehicle, setSelectedVehicle] = useState('');
   const [selectedClient, setSelectedClient] = useState('');
 
@@ -29,7 +29,7 @@ const DealerDashboard = () => {
   const handleAddClient = (e) => {
     e.preventDefault();
     addClient(newClient);
-    setNewClient({ name: '', email: '', phone: '' });
+    setNewClient({ name: '', email: '', phone: '', idNumber: '', username: '', password: '' });
     alert('Cliente registrado correctamente');
   };
 
@@ -93,7 +93,7 @@ const DealerDashboard = () => {
               <StatCard title="Vehículos en Stock" value={vehicles.length} icon={<Car className="text-green-400" />} />
               <StatCard title="Clientes Registrados" value={clients.length} icon={<Users className="text-purple-400" />} />
             </div>
-            
+
             <div className="glass-panel rounded-xl p-6">
               <h3 className="text-lg font-semibold text-white mb-4">Solicitudes Recientes</h3>
               <div className="overflow-x-auto">
@@ -138,11 +138,11 @@ const DealerDashboard = () => {
             <div className="glass-panel p-6 rounded-xl">
               <h3 className="text-lg font-semibold text-white mb-4">Agregar Nuevo Vehículo</h3>
               <form onSubmit={handleAddVehicle} className="grid grid-cols-2 gap-4">
-                <input required placeholder="Marca (ej. Toyota)" className="input-field" value={newVehicle.make} onChange={e => setNewVehicle({...newVehicle, make: e.target.value})} />
-                <input required placeholder="Modelo (ej. Corolla)" className="input-field" value={newVehicle.model} onChange={e => setNewVehicle({...newVehicle, model: e.target.value})} />
-                <input required type="number" placeholder="Año" className="input-field" value={newVehicle.year} onChange={e => setNewVehicle({...newVehicle, year: e.target.value})} />
-                <input required type="number" placeholder="Precio ($)" className="input-field" value={newVehicle.price} onChange={e => setNewVehicle({...newVehicle, price: e.target.value})} />
-                <input placeholder="URL Imagen (Opcional)" className="input-field col-span-2" value={newVehicle.image} onChange={e => setNewVehicle({...newVehicle, image: e.target.value})} />
+                <input required placeholder="Marca (ej. Toyota)" className="input-field pl-4" value={newVehicle.make} onChange={e => setNewVehicle({ ...newVehicle, make: e.target.value })} />
+                <input required placeholder="Modelo (ej. Corolla)" className="input-field pl-4" value={newVehicle.model} onChange={e => setNewVehicle({ ...newVehicle, model: e.target.value })} />
+                <input required type="number" placeholder="Año" className="input-field pl-4" value={newVehicle.year} onChange={e => setNewVehicle({ ...newVehicle, year: e.target.value })} />
+                <input required type="number" placeholder="Precio ($)" className="input-field pl-4" value={newVehicle.price} onChange={e => setNewVehicle({ ...newVehicle, price: e.target.value })} />
+                <input placeholder="URL Imagen (Opcional)" className="input-field pl-4 col-span-2" value={newVehicle.image} onChange={e => setNewVehicle({ ...newVehicle, image: e.target.value })} />
                 <div className="col-span-2 flex justify-end">
                   <button type="submit" className="btn-primary flex items-center gap-2">
                     <Plus className="w-4 h-4" /> Agregar Vehículo
@@ -175,27 +175,110 @@ const DealerDashboard = () => {
             <div className="glass-panel p-6 rounded-xl">
               <h3 className="text-lg font-semibold text-white mb-4">Registrar Nuevo Cliente</h3>
               <form onSubmit={handleAddClient} className="grid grid-cols-2 gap-4">
-                <input required placeholder="Nombre Completo" className="input-field col-span-2" value={newClient.name} onChange={e => setNewClient({...newClient, name: e.target.value})} />
-                <input required type="email" placeholder="Correo Electrónico" className="input-field" value={newClient.email} onChange={e => setNewClient({...newClient, email: e.target.value})} />
-                <input required placeholder="Teléfono" className="input-field" value={newClient.phone} onChange={e => setNewClient({...newClient, phone: e.target.value})} />
-                <div className="col-span-2 flex justify-end">
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Nombre Completo</label>
+                  <input
+                    required
+                    placeholder="Ej. Juan Pérez"
+                    className="input-field"
+                    value={newClient.name}
+                    onChange={e => setNewClient({ ...newClient, name: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Cédula / ID</label>
+                  <input
+                    required
+                    placeholder="Ej. 1234567890"
+                    className="input-field"
+                    value={newClient.idNumber}
+                    onChange={e => setNewClient({ ...newClient, idNumber: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Teléfono</label>
+                  <input
+                    required
+                    placeholder="Ej. +57 300 123 4567"
+                    className="input-field"
+                    value={newClient.phone}
+                    onChange={e => setNewClient({ ...newClient, phone: e.target.value })}
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
+                  <input
+                    required
+                    type="email"
+                    placeholder="ejemplo@correo.com"
+                    className="input-field"
+                    value={newClient.email}
+                    onChange={e => setNewClient({ ...newClient, email: e.target.value })}
+                  />
+                </div>
+
+                <div className="col-span-2 border-t border-dark-border my-2 pt-4">
+                  <p className="text-sm text-primary-400 font-medium mb-4">Credenciales de Acceso</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1">Nombre de Usuario</label>
+                      <input
+                        required
+                        placeholder="Usuario para login"
+                        className="input-field"
+                        value={newClient.username}
+                        onChange={e => setNewClient({ ...newClient, username: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
+                      <input
+                        required
+                        type="password"
+                        placeholder="••••••••"
+                        className="input-field"
+                        value={newClient.password}
+                        onChange={e => setNewClient({ ...newClient, password: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-span-2 flex justify-end mt-4">
                   <button type="submit" className="btn-primary flex items-center gap-2">
-                    <Users className="w-4 h-4" /> Registrar Cliente
+                    <Users className="w-4 h-4" /> Crear Cuenta de Cliente
                   </button>
                 </div>
               </form>
             </div>
-            
+
             <div className="glass-panel rounded-xl p-6">
               <h3 className="text-lg font-semibold text-white mb-4">Cartera de Clientes</h3>
               <div className="grid grid-cols-2 gap-4">
                 {clients.map(client => (
-                  <div key={client.id} className="p-4 border border-dark-border rounded-lg flex items-center justify-between hover:bg-white/5 transition-colors">
-                    <div>
-                      <p className="font-bold text-slate-200">{client.name}</p>
-                      <p className="text-sm text-slate-400">{client.email}</p>
+                  <div key={client.id} className="p-4 border border-dark-border rounded-lg flex flex-col gap-2 hover:bg-white/5 transition-colors">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-bold text-slate-200">{client.name}</p>
+                        <p className="text-sm text-slate-400">{client.email}</p>
+                        <p className="text-xs text-slate-500 mt-1">ID: {client.idNumber || 'N/A'}</p>
+                      </div>
+                      <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">Activo</span>
                     </div>
-                    <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">Activo</span>
+
+                    <div className="mt-2 pt-2 border-t border-dark-border/50 grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-dark-bg/50 p-2 rounded">
+                        <span className="text-slate-500 block">Usuario</span>
+                        <span className="text-slate-300 font-mono">{client.username || 'N/A'}</span>
+                      </div>
+                      <div className="bg-dark-bg/50 p-2 rounded">
+                        <span className="text-slate-500 block">Contraseña</span>
+                        <span className="text-slate-300 font-mono">{client.password || '••••••'}</span>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

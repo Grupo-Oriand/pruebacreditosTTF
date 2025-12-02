@@ -24,11 +24,14 @@ export const AppProvider = ({ children }) => {
     { id: 1, name: 'Juan Pérez', email: 'juan@example.com', phone: '555-0101', status: 'Active', username: 'cliente1', password: 'password123' },
   ]));
 
+  const [sellers, setSellers] = useState(() => getInitialState('sellers', []));
+
   const [requests, setRequests] = useState(() => getInitialState('requests', []));
 
   // Guardar en localStorage cuando cambien los datos
   useEffect(() => { localStorage.setItem('vehicles', JSON.stringify(vehicles)); }, [vehicles]);
   useEffect(() => { localStorage.setItem('clients', JSON.stringify(clients)); }, [clients]);
+  useEffect(() => { localStorage.setItem('sellers', JSON.stringify(sellers)); }, [sellers]);
   useEffect(() => { localStorage.setItem('requests', JSON.stringify(requests)); }, [requests]);
 
   const login = (role, name) => {
@@ -45,6 +48,14 @@ export const AppProvider = ({ children }) => {
 
   const addClient = (client) => {
     setClients([...clients, { ...client, id: Date.now() }]);
+  };
+
+  const addSeller = (seller) => {
+    setSellers([...sellers, { ...seller, id: Date.now() }]);
+  };
+
+  const updateClient = (updatedClient) => {
+    setClients(clients.map(c => c.id === updatedClient.id ? updatedClient : c));
   };
 
   const createRequest = (clientId, vehicleId) => {
@@ -87,7 +98,8 @@ export const AppProvider = ({ children }) => {
     <AppContext.Provider value={{
       user, login, logout,
       vehicles, addVehicle,
-      clients, addClient,
+      clients, addClient, updateClient,
+      sellers, addSeller,
       requests, createRequest, updateRequestStatus, uploadDocument
     }}>
       {children}

@@ -17,7 +17,29 @@ El sistema ahora detecta automáticamente el tipo de usuario basándose en las c
 
 ---
 
-### 👤 Cliente (Client)
+### � Gerente de Concesionario (Dealer Manager)
+**Usuario:** `gerente1`  
+**Contraseña:** `gerente123`  
+**Nombre:** Roberto Gómez  
+**Empresa:** AutoVentas Premium  
+**Email:** gerente@autoventas.com  
+**Teléfono:** +57 300 999 8888  
+**Dashboard:** `/dealer` (Con acceso a Gestión de Vendedores)
+
+---
+
+### 💼 Vendedor (Seller)
+**Usuario:** `vendedor1`  
+**Contraseña:** `vendedor123`  
+**Nombre:** Ana López  
+**Empresa:** AutoVentas Premium  
+**Email:** vendedor@autoventas.com  
+**Teléfono:** +57 300 777 6666  
+**Dashboard:** `/dealer` (Vista limitada de Ventas)
+
+---
+
+### �👤 Cliente (Client)
 **Usuario:** `cliente1`  
 **Contraseña:** `cliente123`  
 **Nombre:** Juan Pérez  
@@ -56,14 +78,15 @@ El sistema ahora detecta automáticamente el tipo de usuario basándose en las c
 
 1. **Login:** El usuario ingresa sus credenciales (username y password)
 2. **Validación:** El sistema busca el usuario en la base de datos mock
-3. **Detección de Rol:** Automáticamente detecta si es dealer, client o financial
+3. **Detección de Rol:** Automáticamente detecta si es dealer, manager, seller, client o financial
 4. **Redirección:** Redirige al dashboard correspondiente según el rol
 
 ## Registro
 
-- Solo los **concesionarios** pueden registrarse directamente desde el login
-- Los **clientes** son registrados por los concesionarios
-- Las **instituciones financieras** son registradas por el super admin
+- **No existe registro público.** Todos los usuarios son creados por administradores.
+- Los **Gerentes** pueden registrar nuevos **Vendedores**.
+- Los **Vendedores y Gerentes** registran a los **Clientes**.
+- Las **Instituciones Financieras** son registradas por el super admin.
 
 ## Archivos Relacionados
 

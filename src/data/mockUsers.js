@@ -50,6 +50,30 @@ export const mockUsers = [
         companyName: 'Davivienda',
         phone: '+57 315 789 0123',
         position: 'Gerente de Créditos'
+    },
+
+    // Gerente de Concesionario
+    {
+        id: 5,
+        username: 'gerente1',
+        password: 'gerente123',
+        email: 'gerente@autoventas.com',
+        fullName: 'Roberto Gómez',
+        role: 'dealer_manager',
+        companyName: 'AutoVentas Premium',
+        phone: '+57 300 999 8888'
+    },
+
+    // Vendedor
+    {
+        id: 6,
+        username: 'vendedor1',
+        password: 'vendedor123',
+        email: 'vendedor@autoventas.com',
+        fullName: 'Ana López',
+        role: 'seller',
+        companyName: 'AutoVentas Premium',
+        phone: '+57 300 777 6666'
     }
 ];
 

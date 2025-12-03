@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { testRequests } from '../data/testRequests';
 
 const AppContext = createContext();
 
@@ -26,7 +27,8 @@ export const AppProvider = ({ children }) => {
 
   const [sellers, setSellers] = useState(() => getInitialState('sellers', []));
 
-  const [requests, setRequests] = useState(() => getInitialState('requests', []));
+  // Cargar solicitudes de prueba automáticamente en desarrollo
+  const [requests, setRequests] = useState(() => getInitialState('requests', testRequests));
 
   // Guardar en localStorage cuando cambien los datos
   useEffect(() => { localStorage.setItem('vehicles', JSON.stringify(vehicles)); }, [vehicles]);

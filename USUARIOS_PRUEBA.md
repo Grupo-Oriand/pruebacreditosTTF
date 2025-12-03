@@ -100,3 +100,32 @@ El sistema ahora detecta automáticamente el tipo de usuario basándose en las c
 - Implementar encriptación de contraseñas
 - Agregar tokens JWT para sesiones
 - Implementar refresh tokens
+
+---
+
+## 🧪 Solicitudes de Prueba
+
+El sistema incluye **3 solicitudes de crédito pre-configuradas** para el usuario `cliente1` que permiten probar todos los estados de la aplicación.
+
+### Solicitudes Disponibles:
+
+1. **Solicitud #1001** - Toyota Corolla
+   - Estado: `pending_docs` (Pendiente de documentación)
+   - Uso: Probar carga de documentos
+
+2. **Solicitud #1002** - Ford Mustang
+   - Estado: `review` (En revisión)
+   - Uso: Probar estado de evaluación
+
+3. **Solicitud #1003** - Tesla Model 3
+   - Estado: `approved` (Aprobada)
+   - Uso: Probar ofertas de bancos
+
+### Cómo Cambiar Estados:
+
+1. Edita el archivo: `src/data/testRequests.js`
+2. Cambia el valor de `status` a: `pending_docs`, `review`, `approved`, `rejected`, o `conditioned`
+3. Limpia localStorage: `localStorage.clear()` en la consola
+4. Recarga la página
+
+**📖 Ver guía completa**: `GUIA_SOLICITUDES_PRUEBA.md`

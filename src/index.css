@@ -40,52 +40,54 @@
 }
 
 /* Legacy utility classes for backward compatibility */
-.glass-panel {
-  background-color: hsl(var(--card) / 0.7);
-  backdrop-filter: blur(16px);
-  border: 1px solid hsl(var(--border));
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-}
+@layer components {
+  .glass-panel {
+    background-color: hsl(var(--card) / 0.7);
+    backdrop-filter: blur(16px);
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  }
 
-.input-field {
-  width: 100%;
-  background-color: hsl(var(--background));
-  border: 1px solid hsl(var(--input));
-  border-radius: 0.5rem;
-  padding: 0.5rem 1rem;
-  color: hsl(var(--foreground));
-  transition: all 0.2s;
-}
+  .input-field {
+    width: 100%;
+    background-color: hsl(var(--background));
+    border: 1px solid hsl(var(--input));
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: hsl(var(--foreground));
+    transition: all 0.2s;
+  }
 
-.input-field:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px hsl(var(--ring));
-}
+  .input-field:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--ring));
+  }
 
-.btn-primary {
-  background-color: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  transition: all 0.2s;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-}
+  .btn-primary {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  }
 
-.btn-primary:hover {
-  background-color: hsl(var(--primary) / 0.9);
-}
+  .btn-primary:hover {
+    background-color: hsl(var(--primary) / 0.9);
+  }
 
-.btn-secondary {
-  background-color: hsl(var(--secondary));
-  color: hsl(var(--secondary-foreground));
-  border: 1px solid hsl(var(--border));
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  transition: all 0.2s;
-}
+  .btn-secondary {
+    background-color: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+    border: 1px solid hsl(var(--border));
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+  }
 
-.btn-secondary:hover {
-  background-color: hsl(var(--secondary) / 0.8);
+  .btn-secondary:hover {
+    background-color: hsl(var(--secondary) / 0.8);
+  }
 }

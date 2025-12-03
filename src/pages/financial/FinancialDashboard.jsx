@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Check, X, AlertTriangle, FileText, DollarSign, User, Calendar, LogOut, Filter, Clock, CheckCircle, XCircle, AlertCircle, Car } from 'lucide-react';
+import { Check, X, AlertTriangle, FileText, DollarSign, User, Calendar, LogOut, Filter, Clock, CheckCircle, XCircle, AlertCircle, Car, Eye } from 'lucide-react';
 import { StatusBadge } from '../dealer/DealerDashboard';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 const FinancialDashboard = () => {
-  const { requests, clients, vehicles, updateRequestStatus, logout } = useApp();
+  const { user, requests, clients, vehicles, updateRequestStatus, logout } = useApp();
   const navigate = useNavigate();
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
@@ -18,10 +18,98 @@ const FinancialDashboard = () => {
     navigate('/');
   };
 
+  // Función para calcular Credit Score
+  const calculateCreditScore = (request, client, vehicle) => {
+    let score = 0;
+    const breakdown = {
+      profileVehicleMatch: 0,
+      informationQuality: 0,
+      dataCompleteness: 0
+    };
+
+    // 1. Relación entre perfil del cliente y el vehículo (35 puntos)
+    if (client && vehicle) {
+      // Verificar si tiene información financiera básica
+      if (client.monthlyIncome && vehicle.price) {
+        const incomeToPrice = client.monthlyIncome / vehicle.price;
+        if (incomeToPrice >= 0.15) breakdown.profileVehicleMatch += 15; // Buen ratio ingreso/precio
+        else if (incomeToPrice >= 0.10) breakdown.profileVehicleMatch += 10;
+        else if (incomeToPrice >= 0.05) breakdown.profileVehicleMatch += 5;
+      }
+
+      // Verificar años de empleo
+      if (client.employmentYears) {
+        if (client.employmentYears >= 5) breakdown.profileVehicleMatch += 10;
+        else if (client.employmentYears >= 2) breakdown.profileVehicleMatch += 7;
+        else if (client.employmentYears >= 1) breakdown.profileVehicleMatch += 4;
+      }
+
+      // Verificar edad del cliente vs precio del vehículo
+      if (client.birthDate) {
+        const age = new Date().getFullYear() - new Date(client.birthDate).getFullYear();
+        if (age >= 25 && age <= 60) breakdown.profileVehicleMatch += 10;
+        else if (age >= 21 && age < 25) breakdown.profileVehicleMatch += 5;
+      }
+    }
+
+    // 2. Calidad de la información cargada (35 puntos)
+    if (client) {
+      // Información personal completa
+      const personalFields = ['firstName', 'lastName', 'idNumber', 'birthDate', 'email', 'phone', 'address'];
+      const completedPersonal = personalFields.filter(field => client[field] && client[field] !== '').length;
+      breakdown.informationQuality += Math.round((completedPersonal / personalFields.length) * 15);
+
+      // Información financiera completa
+      const financialFields = ['occupation', 'monthlyIncome', 'employmentYears'];
+      const completedFinancial = financialFields.filter(field => client[field] && client[field] !== '').length;
+      breakdown.informationQuality += Math.round((completedFinancial / financialFields.length) * 10);
+
+      // Estado civil definido
+      if (client.maritalStatus) breakdown.informationQuality += 5;
+
+      // Tipo de ID válido
+      if (client.idType) breakdown.informationQuality += 5;
+    }
+
+    // 3. Cantidad de información cargada - Documentos (30 puntos)
+    if (request.documents) {
+      const totalDocs = Object.keys(request.documents).length;
+      const uploadedDocs = Object.values(request.documents).filter(Boolean).length;
+      breakdown.dataCompleteness = Math.round((uploadedDocs / totalDocs) * 30);
+    }
+
+    // Calcular score total
+    score = breakdown.profileVehicleMatch + breakdown.informationQuality + breakdown.dataCompleteness;
+
+    return {
+      score: Math.min(score, 100), // Máximo 100
+      breakdown,
+      rating: score >= 80 ? 'Excelente' : score >= 60 ? 'Bueno' : score >= 40 ? 'Regular' : 'Bajo'
+    };
+  };
+
   const poolRequests = requests.filter(r => {
     if (filterStatus === 'all') return true;
+
+    if (['score_high', 'score_medium', 'score_low'].includes(filterStatus)) {
+      const client = clients.find(c => c.id === r.clientId);
+      const vehicle = vehicles.find(v => v.id === r.vehicleId);
+      const { score } = calculateCreditScore(r, client, vehicle);
+
+      if (filterStatus === 'score_high') return score >= 80;
+      if (filterStatus === 'score_medium') return score >= 40 && score < 80;
+      if (filterStatus === 'score_low') return score < 40;
+    }
+
     return r.status === filterStatus;
   });
+
+  const getScoreCount = (min, max) => requests.filter(r => {
+    const client = clients.find(c => c.id === r.clientId);
+    const vehicle = vehicles.find(v => v.id === r.vehicleId);
+    const { score } = calculateCreditScore(r, client, vehicle);
+    return score >= min && score <= max;
+  }).length;
 
   const handleDecision = (status) => {
     if (selectedRequest) {
@@ -90,7 +178,7 @@ const FinancialDashboard = () => {
             <DollarSign className="text-white w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">Portal Financiero</h1>
+            <h1 className="text-xl font-bold">Portal Financiero {user?.companyName ? `- ${user.companyName}` : ''}</h1>
             <p className="text-xs text-muted-foreground">Evaluación de Riesgos</p>
           </div>
         </div>
@@ -150,17 +238,33 @@ const FinancialDashboard = () => {
             </div>
           </div>
 
-          {/* Other Filters */}
+
+
+          {/* Credit Score Filters */}
           <div>
             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 px-1">
-              Otros
+              Credit Score
             </h3>
-            <FilterButton
-              status="conditioned"
-              icon={<AlertCircle className="w-5 h-5" />}
-              label="Condicionadas"
-              count={getCount('conditioned')}
-            />
+            <div className="space-y-1">
+              <FilterButton
+                status="score_high"
+                icon={<div className="w-4 h-4 rounded-full bg-green-500 border-2 border-green-200" />}
+                label="Alto (80-100)"
+                count={getScoreCount(80, 100)}
+              />
+              <FilterButton
+                status="score_medium"
+                icon={<div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-blue-200" />}
+                label="Medio (40-79)"
+                count={getScoreCount(40, 79)}
+              />
+              <FilterButton
+                status="score_low"
+                icon={<div className="w-4 h-4 rounded-full bg-red-500 border-2 border-red-200" />}
+                label="Bajo (0-39)"
+                count={getScoreCount(0, 39)}
+              />
+            </div>
           </div>
         </div>
 
@@ -172,7 +276,11 @@ const FinancialDashboard = () => {
                 filterStatus === 'pending_docs' ? 'Pendientes de Documentación' :
                   filterStatus === 'review' ? 'Solicitudes en Revisión' :
                     filterStatus === 'approved' ? 'Solicitudes Aprobadas' :
-                      filterStatus === 'rejected' ? 'Solicitudes Rechazadas' : 'Solicitudes Condicionadas'}
+                      filterStatus === 'rejected' ? 'Solicitudes Rechazadas' :
+                        filterStatus === 'conditioned' ? 'Solicitudes Condicionadas' :
+                          filterStatus === 'score_high' ? 'Credit Score Alto' :
+                            filterStatus === 'score_medium' ? 'Credit Score Medio' :
+                              filterStatus === 'score_low' ? 'Credit Score Bajo' : ''}
             </h2>
             <span className="bg-primary/20 text-primary text-sm font-bold px-3 py-1 rounded-full">
               {poolRequests.length} solicitudes
@@ -184,6 +292,7 @@ const FinancialDashboard = () => {
               const client = clients.find(c => c.id === req.clientId);
               const vehicle = vehicles.find(v => v.id === req.vehicleId);
               const isSelected = selectedRequest?.id === req.id;
+              const creditScore = calculateCreditScore(req, client, vehicle);
 
               return (
                 <Card
@@ -195,40 +304,57 @@ const FinancialDashboard = () => {
                   )}
                 >
                   {isSelected && <div className="absolute top-0 left-0 w-1 h-full bg-primary" />}
-                  <CardContent className="p-4 flex items-center gap-4">
-                    {/* ID & Date */}
-                    <div className="flex flex-col gap-1 min-w-[80px]">
-                      <span className="px-2 py-0.5 bg-muted text-muted-foreground text-xs font-mono rounded border w-fit">
-                        #{req.id}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(req.date).toLocaleDateString()}
-                      </span>
-                    </div>
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-4">
+                      {/* Status Indicator Strip */}
+                      <div className={cn(
+                        "w-1.5 self-stretch rounded-full",
+                        creditScore.score >= 80 ? "bg-green-500" :
+                          creditScore.score >= 60 ? "bg-blue-500" :
+                            creditScore.score >= 40 ? "bg-orange-500" :
+                              "bg-red-500"
+                      )} />
 
-                    {/* Client Info */}
-                    <div className="flex-1 min-w-[150px]">
-                      <p className="text-xs text-muted-foreground mb-0.5">Cliente</p>
-                      <h3 className="font-bold text-base truncate">{client?.name}</h3>
-                    </div>
+                      {/* Main Info Area */}
+                      <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-sm truncate">{client?.name}</span>
+                            <span className="text-[10px] text-muted-foreground px-1.5 py-0.5 bg-muted rounded border font-mono">#{req.id}</span>
+                          </div>
+                          <span className="text-[10px] text-muted-foreground">{new Date(req.date).toLocaleDateString()}</span>
+                        </div>
 
-                    {/* Vehicle Info */}
-                    <div className="flex items-center gap-3 flex-1 min-w-[200px]">
-                      <div className="w-10 h-10 rounded-lg bg-muted overflow-hidden flex-shrink-0 border">
-                        <img src={vehicle?.image} alt="" className="w-full h-full object-cover" />
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-xs text-muted-foreground truncate">
+                            {vehicle?.make} {vehicle?.model} • ${vehicle?.price?.toLocaleString()}
+                          </span>
+
+                          {/* Compact Score */}
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="text-[10px] font-medium text-muted-foreground">Score:</span>
+                            <span className={cn("text-xs font-bold",
+                              creditScore.score >= 80 ? "text-green-600" :
+                                creditScore.score >= 60 ? "text-blue-600" :
+                                  creditScore.score >= 40 ? "text-orange-600" :
+                                    "text-red-600"
+                            )}>{creditScore.score}</span>
+                            <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
+                              <div className={cn("h-full rounded-full",
+                                creditScore.score >= 80 ? "bg-green-500" :
+                                  creditScore.score >= 60 ? "bg-blue-500" :
+                                    creditScore.score >= 40 ? "bg-orange-500" :
+                                      "bg-red-500"
+                              )} style={{ width: `${creditScore.score}%` }} />
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="overflow-hidden">
-                        <p className="text-xs text-muted-foreground">Vehículo</p>
-                        <p className="text-sm font-medium truncate">
-                          {vehicle?.make} {vehicle?.model}
-                        </p>
-                      </div>
-                    </div>
 
-                    {/* Status */}
-                    <div className="min-w-[120px] flex justify-end">
-                      <StatusBadge status={req.status} />
+                      {/* Status */}
+                      <div className="flex-shrink-0">
+                        <StatusBadge status={req.status} />
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -265,6 +391,111 @@ const FinancialDashboard = () => {
                   <X className="w-5 h-5" />
                 </Button>
               </div>
+
+              {/* Credit Score Breakdown */}
+              {(() => {
+                const client = clients.find(c => c.id === selectedRequest.clientId);
+                const vehicle = vehicles.find(v => v.id === selectedRequest.vehicleId);
+                const creditScore = calculateCreditScore(selectedRequest, client, vehicle);
+
+                return (
+                  <Card className={cn(
+                    "border-l-4",
+                    creditScore.score >= 80 ? "border-l-green-500 bg-green-500/5" :
+                      creditScore.score >= 60 ? "border-l-blue-500 bg-blue-500/5" :
+                        creditScore.score >= 40 ? "border-l-orange-500 bg-orange-500/5" :
+                          "border-l-red-500 bg-red-500/5"
+                  )}>
+                    <CardHeader>
+                      <CardTitle className="text-sm flex items-center justify-between uppercase tracking-wider">
+                        <span className="flex items-center gap-2">
+                          <DollarSign className="w-4 h-4 text-primary" />
+                          Credit Score
+                        </span>
+                        <span className={cn(
+                          "text-2xl font-bold",
+                          creditScore.score >= 80 ? "text-green-500" :
+                            creditScore.score >= 60 ? "text-blue-500" :
+                              creditScore.score >= 40 ? "text-orange-500" :
+                                "text-red-500"
+                        )}>
+                          {creditScore.score}/100
+                        </span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="text-muted-foreground">Calificación</span>
+                          <span className={cn(
+                            "font-bold",
+                            creditScore.score >= 80 ? "text-green-500" :
+                              creditScore.score >= 60 ? "text-blue-500" :
+                                creditScore.score >= 40 ? "text-orange-500" :
+                                  "text-red-500"
+                          )}>
+                            {creditScore.rating}
+                          </span>
+                        </div>
+                        <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={cn(
+                              "h-full transition-all",
+                              creditScore.score >= 80 ? "bg-green-500" :
+                                creditScore.score >= 60 ? "bg-blue-500" :
+                                  creditScore.score >= 40 ? "bg-orange-500" :
+                                    "bg-red-500"
+                            )}
+                            style={{ width: `${creditScore.score}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 pt-2 border-t">
+                        <p className="text-xs font-bold text-muted-foreground uppercase">Desglose</p>
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-muted-foreground">Perfil vs Vehículo</span>
+                            <span className="font-medium">{creditScore.breakdown.profileVehicleMatch}/35</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary transition-all"
+                              style={{ width: `${(creditScore.breakdown.profileVehicleMatch / 35) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-muted-foreground">Calidad de Información</span>
+                            <span className="font-medium">{creditScore.breakdown.informationQuality}/35</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary transition-all"
+                              style={{ width: `${(creditScore.breakdown.informationQuality / 35) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-muted-foreground">Documentos Cargados</span>
+                            <span className="font-medium">{creditScore.breakdown.dataCompleteness}/30</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary transition-all"
+                              style={{ width: `${(creditScore.breakdown.dataCompleteness / 30) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
 
               {/* Client Profile */}
               <Card>
@@ -324,9 +555,26 @@ const FinancialDashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <DocPreviewRow name="DNI / Pasaporte" verified={selectedRequest.documents?.idCard} />
-                  <DocPreviewRow name="Recibos de Sueldo" verified={selectedRequest.documents?.incomeProof} />
-                  <DocPreviewRow name="Comp. Domicilio" verified={selectedRequest.documents?.addressProof} />
+                  <DocPreviewRow
+                    name="DNI / Pasaporte"
+                    verified={selectedRequest.documents?.idCard}
+                    onView={() => window.open(selectedRequest.documentUrls?.idCard || 'https://placehold.co/600x400/png?text=DNI+Documento', '_blank')}
+                  />
+                  <DocPreviewRow
+                    name="Recibos de Sueldo"
+                    verified={selectedRequest.documents?.incomeProof}
+                    onView={() => window.open(selectedRequest.documentUrls?.incomeProof || 'https://placehold.co/600x800/png?text=Recibo+de+Sueldo', '_blank')}
+                  />
+                  <DocPreviewRow
+                    name="Comp. Domicilio"
+                    verified={selectedRequest.documents?.addressProof}
+                    onView={() => window.open(selectedRequest.documentUrls?.addressProof || 'https://placehold.co/600x800/png?text=Comprobante+Domicilio', '_blank')}
+                  />
+                  <DocPreviewRow
+                    name="Proforma Vehículo"
+                    verified={selectedRequest.documents?.vehicleProforma}
+                    onView={() => window.open(selectedRequest.documentUrls?.vehicleProforma || 'https://placehold.co/600x800/png?text=Proforma+Vehiculo', '_blank')}
+                  />
                 </CardContent>
               </Card>
 
@@ -390,7 +638,7 @@ const InfoRow = ({ label, value, highlight }) => (
   </div>
 );
 
-const DocPreviewRow = ({ name, verified }) => (
+const DocPreviewRow = ({ name, verified, onView }) => (
   <div className="flex items-center justify-between p-3 rounded-lg bg-muted border">
     <div className="flex items-center gap-3">
       <FileText className={cn("w-4 h-4", verified ? "text-primary" : "text-muted-foreground")} />
@@ -398,11 +646,24 @@ const DocPreviewRow = ({ name, verified }) => (
         {name}
       </span>
     </div>
-    {verified ? (
-      <CheckCircle className="w-4 h-4 text-green-500" />
-    ) : (
-      <Clock className="w-4 h-4 text-muted-foreground" />
-    )}
+    <div className="flex items-center gap-2">
+      {verified ? (
+        <>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 hover:bg-primary/10 hover:text-primary"
+            onClick={onView}
+            title="Ver documento"
+          >
+            <Eye className="w-4 h-4" />
+          </Button>
+          <CheckCircle className="w-4 h-4 text-green-500" />
+        </>
+      ) : (
+        <Clock className="w-4 h-4 text-muted-foreground" />
+      )}
+    </div>
   </div>
 );
 

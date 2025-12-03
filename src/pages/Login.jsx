@@ -28,7 +28,7 @@ const Login = () => {
     const mockUser = authenticateUser(formData.username, formData.password);
 
     if (mockUser) {
-      login(mockUser.role, mockUser.fullName);
+      login(mockUser.role, mockUser.fullName, { companyName: mockUser.companyName });
       switch (mockUser.role) {
         case 'dealer':
         case 'dealer_manager':

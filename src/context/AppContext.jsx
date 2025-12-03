@@ -22,7 +22,25 @@ export const AppProvider = ({ children }) => {
   ]));
 
   const [clients, setClients] = useState(() => getInitialState('clients', [
-    { id: 1, name: 'Juan Pérez', email: 'juan@example.com', phone: '555-0101', status: 'Active', username: 'cliente1', password: 'password123' },
+    {
+      id: 1,
+      name: 'Juan Pérez',
+      firstName: 'Juan',
+      lastName: 'Pérez',
+      email: 'juan@example.com',
+      phone: '555-0101',
+      idType: 'V',
+      idNumber: '12345678',
+      birthDate: '1990-05-15',
+      maritalStatus: 'casado',
+      address: 'Av. Principal, Caracas',
+      occupation: 'Ingeniero de Software',
+      monthlyIncome: 5000,
+      employmentYears: 8,
+      status: 'Active',
+      username: 'cliente1',
+      password: 'password123'
+    },
   ]));
 
   const [sellers, setSellers] = useState(() => getInitialState('sellers', []));
@@ -30,14 +48,18 @@ export const AppProvider = ({ children }) => {
   // Cargar solicitudes de prueba automáticamente en desarrollo
   const [requests, setRequests] = useState(() => getInitialState('requests', testRequests));
 
+  // Sistema de notificaciones
+  const [notifications, setNotifications] = useState(() => getInitialState('notifications', []));
+
   // Guardar en localStorage cuando cambien los datos
   useEffect(() => { localStorage.setItem('vehicles', JSON.stringify(vehicles)); }, [vehicles]);
   useEffect(() => { localStorage.setItem('clients', JSON.stringify(clients)); }, [clients]);
   useEffect(() => { localStorage.setItem('sellers', JSON.stringify(sellers)); }, [sellers]);
   useEffect(() => { localStorage.setItem('requests', JSON.stringify(requests)); }, [requests]);
+  useEffect(() => { localStorage.setItem('notifications', JSON.stringify(notifications)); }, [notifications]);
 
-  const login = (role, name) => {
-    setUser({ role, name });
+  const login = (role, name, additionalData = {}) => {
+    setUser({ role, name, ...additionalData });
   };
 
   const logout = () => {
@@ -67,28 +89,70 @@ export const AppProvider = ({ children }) => {
       vehicleId,
       status: 'pending_docs', // pending_docs, review, approved, rejected, conditioned
       date: new Date().toISOString(),
+      needsCompletion: true, // Nueva bandera para indicar que necesita completar formulario
       documents: {
         idCard: false,
         incomeProof: false,
-        addressProof: false
+        addressProof: false,
+        vehicleProforma: false
       }
     };
     setRequests([...requests, newRequest]);
+
+    // Crear notificación para el cliente
+    const newNotification = {
+      id: Date.now() + 1,
+      clientId,
+      requestId: newRequest.id,
+      type: 'new_request',
+      title: 'Nueva Solicitud de Crédito',
+      message: 'Se ha creado una nueva solicitud de crédito. Completa el formulario para continuar.',
+      read: false,
+      date: new Date().toISOString()
+    };
+    setNotifications([...notifications, newNotification]);
+
+    return newRequest.id;
+  };
+
+  const markNotificationAsRead = (notificationId) => {
+    setNotifications(notifications.map(n =>
+      n.id === notificationId ? { ...n, read: true } : n
+    ));
+  };
+
+  const completeRequestForm = (requestId, formData) => {
+    setRequests(requests.map(r =>
+      r.id === requestId ? { ...r, ...formData, needsCompletion: false } : r
+    ));
   };
 
   const updateRequestStatus = (requestId, status) => {
     setRequests(requests.map(r => r.id === requestId ? { ...r, status } : r));
   };
 
-  const uploadDocument = (requestId, docType) => {
+  const uploadDocument = (requestId, docType, file) => {
     setRequests(requests.map(r => {
       if (r.id === requestId) {
         const updatedDocs = { ...r.documents, [docType]: true };
+
+        // Crear URL temporal para el archivo si se proporciona
+        let fileUrl = null;
+        if (file) {
+          fileUrl = URL.createObjectURL(file);
+        }
+
+        const updatedDocUrls = {
+          ...(r.documentUrls || {}),
+          [docType]: fileUrl
+        };
+
         // Check if all docs are uploaded
         const allUploaded = Object.values(updatedDocs).every(v => v);
         return {
           ...r,
           documents: updatedDocs,
+          documentUrls: updatedDocUrls,
           status: allUploaded ? 'review' : 'pending_docs'
         };
       }
@@ -102,7 +166,8 @@ export const AppProvider = ({ children }) => {
       vehicles, addVehicle,
       clients, addClient, updateClient,
       sellers, addSeller,
-      requests, createRequest, updateRequestStatus, uploadDocument
+      requests, createRequest, updateRequestStatus, uploadDocument,
+      notifications, markNotificationAsRead, completeRequestForm
     }}>
       {children}
     </AppContext.Provider>

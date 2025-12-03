@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 
 const OfferCard = ({ offer, requestId }) => {
   const navigate = useNavigate();
-  
+
   return (
     <div className="bg-muted p-4 rounded-lg border flex flex-col sm:flex-row justify-between items-center gap-4">
       <div className="w-full sm:w-auto">
@@ -112,16 +112,17 @@ export const RequestsSection = ({ requests, vehicles }) => {
       {requests.map(request => {
         const vehicle = vehicles.find(v => v.id === request.vehicleId);
         const offers = request.status === 'approved' || request.status === 'conditioned' ? [
-          { bank: 'Bancolombia', rate: '1.2%', term: '60 meses', amount: vehicle?.price * 0.9 },
-          { bank: 'Davivienda', rate: '1.5%', term: '48 meses', amount: vehicle?.price }
+          { bank: 'PIVCA', rate: '1.2%', term: '60 meses', amount: vehicle?.price * 0.9 },
+          { bank: 'FIVENCA', rate: '1.5%', term: '48 meses', amount: vehicle?.price },
+          { bank: 'ARCA', rate: '1.8%', term: '36 meses', amount: vehicle?.price * 0.85 }
         ] : [];
 
         return (
-          <RequestCard 
-            key={request.id} 
-            request={request} 
-            vehicle={vehicle} 
-            offers={offers} 
+          <RequestCard
+            key={request.id}
+            request={request}
+            vehicle={vehicle}
+            offers={offers}
           />
         );
       })}

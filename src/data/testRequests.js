@@ -23,7 +23,8 @@ export const testRequests = [
     documents: {
       idCard: false,
       incomeProof: false,
-      addressProof: false
+      addressProof: false,
+      vehicleProforma: false
     },
     notes: 'Solicitud inicial - Documentación pendiente'
   },
@@ -38,7 +39,8 @@ export const testRequests = [
     documents: {
       idCard: true,
       incomeProof: true,
-      addressProof: true
+      addressProof: true,
+      vehicleProforma: true
     },
     notes: 'Todos los documentos subidos - En evaluación'
   },
@@ -53,7 +55,8 @@ export const testRequests = [
     documents: {
       idCard: true,
       incomeProof: true,
-      addressProof: true
+      addressProof: true,
+      vehicleProforma: true
     },
     notes: 'Solicitud aprobada - Ofertas disponibles'
   }
@@ -106,7 +109,7 @@ export const changeTestRequestStatus = (id, newStatus) => {
   const request = testRequests.find(req => req.id === id);
   if (request) {
     request.status = newStatus;
-    
+
     // Si el estado es 'review', 'approved' o 'conditioned', asegurar que los documentos estén completos
     if (['review', 'approved', 'conditioned'].includes(newStatus)) {
       request.documents = {
@@ -115,7 +118,7 @@ export const changeTestRequestStatus = (id, newStatus) => {
         addressProof: true
       };
     }
-    
+
     return request;
   }
   return null;

@@ -26,30 +26,43 @@ export const mockUsers = [
         idNumber: '1234567890'
     },
 
-    // Institución Financiera
+    // Institución Financiera - PIVCA
     {
         id: 3,
-        username: 'banco1',
-        password: 'banco123',
-        email: 'creditos@bancolombia.com',
+        username: 'analista_pivca',
+        password: 'pivca123',
+        email: 'creditos@pivca.com',
         fullName: 'María González',
         role: 'financial',
-        companyName: 'Bancolombia',
-        phone: '+57 320 456 7890',
-        position: 'Analista de Crédito'
+        companyName: 'PIVCA',
+        phone: '+58 414 123 4567',
+        position: 'Analista de Crédito Senior'
     },
 
-    // Otra Institución Financiera
+    // Institución Financiera - FIVENCA
     {
         id: 4,
-        username: 'financiera1',
-        password: 'financiera123',
-        email: 'creditos@davivienda.com',
-        fullName: 'Andrea Martínez',
+        username: 'analista_fivenca',
+        password: 'fivenca123',
+        email: 'analisis@fivenca.com',
+        fullName: 'Alejandro Mendoza',
         role: 'financial',
-        companyName: 'Davivienda',
-        phone: '+57 315 789 0123',
-        position: 'Gerente de Créditos'
+        companyName: 'FIVENCA',
+        phone: '+58 412 987 6543',
+        position: 'Gerente de Riesgo'
+    },
+
+    // Institución Financiera - ARCA
+    {
+        id: 7,
+        username: 'analista_arca',
+        password: 'arca123',
+        email: 'riesgo@arca.com',
+        fullName: 'Patricia Elena Torres',
+        role: 'financial',
+        companyName: 'ARCA',
+        phone: '+58 424 555 8899',
+        position: 'Coordinadora de Créditos'
     },
 
     // Gerente de Concesionario

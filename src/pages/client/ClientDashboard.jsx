@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { ClientSidebar } from '../../components/client/ClientSidebar';
 import { ProfileSection } from '../../components/client/ProfileSection';
 import { RequestsSection } from '../../components/client/RequestsSection';
@@ -80,7 +82,7 @@ const ClientDashboard = () => {
   };
 
   if (!currentClient) {
-    return <div className="text-white p-8">Cargando perfil...</div>;
+    return <div className="text-foreground p-8">Cargando perfil...</div>;
   }
 
   const tabTitles = {
@@ -100,24 +102,28 @@ const ClientDashboard = () => {
   const selectedVehicle = selectedRequest ? vehicles.find(v => v.id === selectedRequest.vehicleId) : null;
 
   return (
-    <div className="min-h-screen bg-dark-bg flex">
+    <div className="min-h-screen bg-background flex">
       <ClientSidebar
         currentClient={currentClient}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onLogout={handleLogout}
       />
 
       <div className="flex-1 p-10 overflow-y-auto relative">
         <header className="mb-10 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-white">{tabTitles[activeTab]}</h1>
-            <p className="text-slate-400 mt-2">{tabDescriptions[activeTab]}</p>
+            <h1 className="text-3xl font-bold text-foreground">{tabTitles[activeTab]}</h1>
+            <p className="text-muted-foreground mt-2">{tabDescriptions[activeTab]}</p>
           </div>
-          <NotificationBell
-            notifications={myNotifications}
-            onNotificationClick={handleNotificationClick}
-          />
+          <div className="flex items-center gap-4">
+            <NotificationBell
+              notifications={myNotifications}
+              onNotificationClick={handleNotificationClick}
+            />
+            <Button variant="outline" onClick={handleLogout} className="gap-2">
+              <LogOut className="w-4 h-4" /> Salir
+            </Button>
+          </div>
         </header>
 
         {activeTab === 'profile' && (

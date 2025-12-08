@@ -71,20 +71,20 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1920')] bg-cover bg-center relative">
-      <div className="absolute inset-0 bg-dark-bg/80 backdrop-blur-sm"></div>
+      <div className="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
 
       <div className="relative z-10 w-full max-w-md p-8 glass-panel rounded-2xl">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-500/20 mb-4">
-            <Car className="w-8 h-8 text-primary-500" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 mb-4">
+            <Car className="w-8 h-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">AutoCredit Pro</h1>
-          <p className="text-slate-400">Sistema de Gestión de Créditos</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">AutoCredit Pro</h1>
+          <p className="text-muted-foreground">Sistema de Gestión de Créditos</p>
         </div>
 
         {/* Mensaje de error */}
         {error && (
-          <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-lg flex items-center gap-2 text-red-400">
+          <div className="mb-4 p-3 bg-destructive/10 border border-destructive/50 rounded-lg flex items-center gap-2 text-destructive">
             <AlertCircle className="w-5 h-5" />
             <span className="text-sm">{error}</span>
           </div>
@@ -92,9 +92,9 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Usuario</label>
+            <label className="block text-sm font-medium text-muted-foreground mb-1">Usuario</label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
                 type="text"
                 name="username"
@@ -107,9 +107,9 @@ const Login = () => {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
+            <label className="block text-sm font-medium text-muted-foreground mb-1">Contraseña</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
                 type="password"
                 name="password"
@@ -122,11 +122,11 @@ const Login = () => {
             </div>
           </div>
           <div className="flex items-center justify-between text-sm pt-2">
-            <label className="flex items-center text-slate-400 cursor-pointer">
-              <input type="checkbox" className="mr-2 rounded border-dark-border bg-dark-bg" />
+            <label className="flex items-center text-muted-foreground cursor-pointer">
+              <input type="checkbox" className="mr-2 rounded border-border bg-background" />
               Recordarme
             </label>
-            <a href="#" className="text-primary-500 hover:text-primary-400 transition-colors">
+            <a href="#" className="text-primary hover:text-primary/80 transition-colors">
               ¿Olvidaste tu contraseña?
             </a>
           </div>

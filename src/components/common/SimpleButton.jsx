@@ -1,19 +1,19 @@
 import React from 'react';
 
-export const SimpleButton = ({ 
-  children, 
-  variant = 'primary', 
-  icon, 
-  onClick, 
+export const SimpleButton = ({
+  children,
+  variant = 'primary',
+  icon,
+  onClick,
   type = 'button',
   className = '',
-  ...props 
+  ...props
 }) => {
   const variants = {
     primary: 'btn-primary',
     secondary: 'btn-secondary',
-    ghost: 'text-slate-400 hover:bg-white/5 hover:text-slate-200 transition-colors',
-    danger: 'bg-red-600 hover:bg-red-500 text-white font-medium py-2 px-4 rounded-lg transition-colors',
+    ghost: 'text-muted-foreground hover:bg-accent hover:text-foreground transition-colors',
+    danger: 'bg-destructive hover:bg-destructive/90 text-destructive-foreground font-medium py-2 px-4 rounded-lg transition-colors',
   };
 
   return (

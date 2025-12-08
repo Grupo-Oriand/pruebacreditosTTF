@@ -50,26 +50,38 @@ El sistema ahora detecta automáticamente el tipo de usuario basándose en las c
 
 ---
 
-### 🏦 Institución Financiera #1 (Financial)
-**Usuario:** `banco1`  
-**Contraseña:** `banco123`  
+### 🏦 Institución Financiera #1 (PIVCA)
+**Usuario:** `analista_pivca`  
+**Contraseña:** `pivca123`  
 **Nombre:** María González  
-**Empresa:** Bancolombia  
-**Email:** creditos@bancolombia.com  
-**Teléfono:** +57 320 456 7890  
-**Cargo:** Analista de Crédito  
+**Empresa:** PIVCA  
+**Email:** creditos@pivca.com  
+**Teléfono:** +58 414 123 4567  
+**Cargo:** Analista de Crédito Senior  
 **Dashboard:** `/financial`
 
 ---
 
-### 🏦 Institución Financiera #2 (Financial)
-**Usuario:** `financiera1`  
-**Contraseña:** `financiera123`  
-**Nombre:** Andrea Martínez  
-**Empresa:** Davivienda  
-**Email:** creditos@davivienda.com  
-**Teléfono:** +57 315 789 0123  
-**Cargo:** Gerente de Créditos  
+### 🏦 Institución Financiera #2 (FIVENCA)
+**Usuario:** `analista_fivenca`  
+**Contraseña:** `fivenca123`  
+**Nombre:** Alejandro Mendoza  
+**Empresa:** FIVENCA  
+**Email:** analisis@fivenca.com  
+**Teléfono:** +58 412 987 6543  
+**Cargo:** Gerente de Riesgo  
+**Dashboard:** `/financial`
+
+---
+
+### 🏦 Institución Financiera #3 (ARCA)
+**Usuario:** `analista_arca`  
+**Contraseña:** `arca123`  
+**Nombre:** Patricia Elena Torres  
+**Empresa:** ARCA  
+**Email:** riesgo@arca.com  
+**Teléfono:** +58 424 555 8899  
+**Cargo:** Coordinadora de Créditos  
 **Dashboard:** `/financial`
 
 ---

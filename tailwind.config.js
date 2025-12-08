@@ -57,9 +57,9 @@ export default {
         },
         // Legacy dark colors for compatibility
         dark: {
-          bg: '#0f172a',
-          surface: '#1e293b',
-          border: '#334155',
+          bg: "hsl(var(--background))",
+          surface: "hsl(var(--card))",
+          border: "hsl(var(--border))",
         }
       },
       borderRadius: {

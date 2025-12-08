@@ -19,7 +19,7 @@ const DevPanel = () => {
 
   const handleStatusChange = (requestId, newStatus) => {
     updateRequestStatus(requestId, newStatus);
-    
+
     // Si el estado requiere documentos completos, marcarlos automáticamente
     if (['review', 'approved', 'conditioned'].includes(newStatus)) {
       uploadDocument(requestId, 'idCard');
@@ -56,20 +56,20 @@ const DevPanel = () => {
 
       {/* Panel deslizable */}
       {isOpen && (
-        <div className="fixed inset-y-0 right-0 z-40 w-96 bg-dark-bg border-l border-dark-border shadow-2xl overflow-y-auto">
+        <div className="fixed inset-y-0 right-0 z-40 w-96 bg-background border-l border-border shadow-2xl overflow-y-auto">
           <div className="p-6">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6 pb-4 border-b border-dark-border">
+            <div className="flex items-center justify-between mb-6 pb-4 border-b border-border">
               <div>
-                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                   <Settings className="w-5 h-5 text-purple-500" />
                   Dev Panel
                 </h2>
-                <p className="text-xs text-slate-400 mt-1">Control de solicitudes de prueba</p>
+                <p className="text-xs text-muted-foreground mt-1">Control de solicitudes de prueba</p>
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-slate-400 hover:text-white transition-colors"
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 ✕
               </button>
@@ -77,10 +77,10 @@ const DevPanel = () => {
 
             {/* Acciones rápidas */}
             <div className="mb-6">
-              <h3 className="text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider">Acciones Rápidas</h3>
+              <h3 className="text-sm font-bold text-muted-foreground mb-3 uppercase tracking-wider">Acciones Rápidas</h3>
               <button
                 onClick={handleClearLocalStorage}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 rounded-lg transition-colors font-medium"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-600/10 hover:bg-red-600/20 text-red-600 rounded-lg transition-colors font-medium"
               >
                 <Trash2 className="w-4 h-4" />
                 Limpiar localStorage
@@ -89,12 +89,12 @@ const DevPanel = () => {
 
             {/* Lista de solicitudes */}
             <div>
-              <h3 className="text-sm font-bold text-slate-300 mb-3 uppercase tracking-wider">
+              <h3 className="text-sm font-bold text-muted-foreground mb-3 uppercase tracking-wider">
                 Solicitudes ({requests.length})
               </h3>
-              
+
               {requests.length === 0 ? (
-                <div className="text-center py-8 text-slate-500">
+                <div className="text-center py-8 text-muted-foreground">
                   <p className="text-sm">No hay solicitudes</p>
                   <p className="text-xs mt-1">Limpia el localStorage para cargar las solicitudes de prueba</p>
                 </div>
@@ -103,23 +103,23 @@ const DevPanel = () => {
                   {requests.map(request => (
                     <div
                       key={request.id}
-                      className="glass-panel p-4 rounded-xl border border-dark-border"
+                      className="glass-panel p-4 rounded-xl border border-border"
                     >
                       <div className="mb-3">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-white font-bold text-sm">Solicitud #{request.id}</span>
-                          <span className="text-xs text-slate-400">
+                          <span className="text-foreground font-bold text-sm">Solicitud #{request.id}</span>
+                          <span className="text-xs text-muted-foreground">
                             Cliente ID: {request.clientId}
                           </span>
                         </div>
-                        <div className="text-xs text-slate-400">
+                        <div className="text-xs text-muted-foreground">
                           Vehículo ID: {request.vehicleId}
                         </div>
                       </div>
 
                       {/* Selector de estado */}
                       <div>
-                        <label className="block text-xs text-slate-400 mb-2 font-medium">
+                        <label className="block text-xs text-muted-foreground mb-2 font-medium">
                           Cambiar Estado:
                         </label>
                         <div className="grid grid-cols-1 gap-2">
@@ -131,7 +131,7 @@ const DevPanel = () => {
                                 px-3 py-2 rounded-lg text-xs font-medium transition-all text-left
                                 ${request.status === option.value
                                   ? `${option.color} text-white shadow-lg`
-                                  : 'bg-dark-surface text-slate-300 hover:bg-dark-border'
+                                  : 'bg-muted text-muted-foreground hover:bg-accent'
                                 }
                               `}
                             >
@@ -147,15 +147,15 @@ const DevPanel = () => {
                       </div>
 
                       {/* Estado de documentos */}
-                      <div className="mt-3 pt-3 border-t border-dark-border/50">
-                        <div className="text-xs text-slate-400 mb-1">Documentos:</div>
+                      <div className="mt-3 pt-3 border-t border-border/50">
+                        <div className="text-xs text-muted-foreground mb-1">Documentos:</div>
                         <div className="flex gap-1">
                           {Object.entries(request.documents || {}).map(([key, value]) => (
                             <span
                               key={key}
                               className={`
                                 px-2 py-1 rounded text-xs
-                                ${value ? 'bg-green-500/20 text-green-400' : 'bg-slate-700 text-slate-400'}
+                                ${value ? 'bg-green-500/20 text-green-600' : 'bg-muted text-muted-foreground'}
                               `}
                             >
                               {key}: {value ? '✓' : '✗'}
@@ -171,9 +171,9 @@ const DevPanel = () => {
 
             {/* Info */}
             <div className="mt-6 p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-              <h4 className="text-xs font-bold text-purple-400 mb-2">💡 Tip</h4>
-              <p className="text-xs text-purple-300/80 leading-relaxed">
-                Los cambios se guardan automáticamente en localStorage. 
+              <h4 className="text-xs font-bold text-purple-600 mb-2">💡 Tip</h4>
+              <p className="text-xs text-purple-600/80 leading-relaxed">
+                Los cambios se guardan automáticamente en localStorage.
                 Para resetear todo a los valores iniciales, usa el botón "Limpiar localStorage".
               </p>
             </div>

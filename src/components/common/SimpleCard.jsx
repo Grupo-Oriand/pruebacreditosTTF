@@ -7,7 +7,7 @@ export const SimpleCard = ({ children, className = '' }) => (
 );
 
 export const SimpleCardHeader = ({ children, className = '' }) => (
-  <div className={`bg-dark-surface/50 p-6 border-b border-dark-border ${className}`}>
+  <div className={`bg-muted/50 p-6 border-b border-border ${className}`}>
     {children}
   </div>
 );
@@ -19,7 +19,7 @@ export const SimpleCardContent = ({ children, className = '' }) => (
 );
 
 export const SimpleCardTitle = ({ children, icon, className = '' }) => (
-  <h3 className={`text-lg font-bold text-white flex items-center gap-2 ${className}`}>
+  <h3 className={`text-lg font-bold text-foreground flex items-center gap-2 ${className}`}>
     {icon}
     {children}
   </h3>

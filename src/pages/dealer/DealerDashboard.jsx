@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Plus, Car, Users, FileText, Search, LogOut, Building2, Briefcase } from 'lucide-react';
+import { Plus, Car, Users, FileText, Search, LogOut, Building2, Briefcase, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const DealerDashboard = () => {
   const { user, vehicles, clients, sellers, requests, addVehicle, addClient, addSeller, createRequest, logout } = useApp();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview'); // overview, vehicles, clients, sellers, new-request
+  const [activeTab, setActiveTab] = useState('overview'); // overview, vehicles, clients, settings, new-request
+  const [dealerInfo, setDealerInfo] = useState({
+    name: user?.companyName || 'Concesionario',
+    address: '',
+    phone: '',
+    email: ''
+  });
 
   // Forms State
   // const [newVehicle, setNewVehicle] = useState({ make: '', model: '', year: '', price: '', image: '' });
@@ -55,82 +62,68 @@ const DealerDashboard = () => {
   const isManager = user?.role === 'dealer_manager';
 
   return (
-    <div className="min-h-screen bg-dark-bg flex">
+    <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
-      <div className="w-64 glass-panel border-r border-dark-border p-6 flex flex-col">
+      <div className="w-64 bg-card border-r border-border p-6 flex flex-col">
         <div className="flex items-center gap-3 mb-10">
-          <div className="w-10 h-10 rounded-lg bg-primary-600 flex items-center justify-center">
-            <Building2 className="text-white w-6 h-6" />
+          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
+            <Building2 className="text-primary-foreground w-6 h-6" />
           </div>
           <div>
-            <h2 className="font-bold text-white">Dealer Portal</h2>
-            <p className="text-xs text-slate-400">{isManager ? 'Gerencia' : 'Ventas'}</p>
+            <h2 className="font-bold text-foreground">Dealer Portal</h2>
+            <p className="text-xs text-muted-foreground">{isManager ? 'Gerencia' : 'Ventas'}</p>
           </div>
         </div>
 
         <nav className="flex-1 space-y-2">
+          <NavButton active={activeTab === 'new-request'} onClick={() => setActiveTab('new-request')} icon={<Plus />} label="Nueva Solicitud" />
           <NavButton active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon={<FileText />} label="Resumen" />
           {/* <NavButton active={activeTab === 'vehicles'} onClick={() => setActiveTab('vehicles')} icon={<Car />} label="Inventario" /> */}
           <NavButton active={activeTab === 'clients'} onClick={() => setActiveTab('clients')} icon={<Users />} label="Clientes" />
           {isManager && (
-            <NavButton active={activeTab === 'sellers'} onClick={() => setActiveTab('sellers')} icon={<Briefcase />} label="Vendedores" />
+            <NavButton active={activeTab === 'settings'} onClick={() => setActiveTab('settings')} icon={<Settings />} label="Configuración" />
           )}
-          <NavButton active={activeTab === 'new-request'} onClick={() => setActiveTab('new-request')} icon={<Plus />} label="Nueva Solicitud" />
         </nav>
-
-        <button onClick={handleLogout} className="flex items-center gap-3 text-slate-400 hover:text-white transition-colors mt-auto pt-6 border-t border-dark-border">
-          <LogOut className="w-5 h-5" />
-          <span>Cerrar Sesión</span>
-        </button>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 p-8 overflow-y-auto">
         <header className="flex justify-between items-center mb-8">
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-2xl font-bold text-foreground">
             {activeTab === 'overview' && 'Resumen de Solicitudes'}
             {/* {activeTab === 'vehicles' && 'Gestión de Vehículos'} */}
             {activeTab === 'clients' && 'Gestión de Clientes'}
-            {activeTab === 'sellers' && 'Gestión de Vendedores'}
+            {activeTab === 'settings' && 'Configuración del Concesionario'}
             {activeTab === 'new-request' && 'Crear Nueva Solicitud'}
           </h1>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-sm font-medium text-white">{user?.name || 'Usuario'}</p>
-              <p className="text-xs text-slate-400">{isManager ? 'Gerente' : 'Vendedor'}</p>
+              <p className="text-sm font-medium text-foreground">{user?.name || 'Usuario'}</p>
+              <p className="text-xs text-muted-foreground">{isManager ? 'Gerente' : 'Vendedor'}</p>
             </div>
-            <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-bold">
+            <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-foreground font-bold">
               {user?.name?.charAt(0) || 'U'}
             </div>
+            <Button variant="outline" onClick={handleLogout} className="gap-2">
+              <LogOut className="w-4 h-4" /> Salir
+            </Button>
           </div>
         </header>
 
         {activeTab === 'overview' && (
           <div className="grid grid-cols-1 gap-6">
-            <div className="grid grid-cols-3 gap-6 mb-6">
+            <div className="grid grid-cols-2 gap-6 mb-6">
               <StatCard title="Solicitudes Activas" value={requests.length} icon={<FileText className="text-blue-400" />} />
-              <StatCard title="Vehículos en Stock" value={vehicles.length} icon={<Car className="text-green-400" />} />
               <StatCard title="Clientes Registrados" value={clients.length} icon={<Users className="text-purple-400" />} />
             </div>
 
-            {isManager && (
-              <div className="mb-8 flex justify-end">
-                <button
-                  onClick={() => setActiveTab('sellers')}
-                  className="btn-primary flex items-center gap-2 px-6 py-3 shadow-lg shadow-primary-900/20 hover:scale-105 transition-transform"
-                >
-                  <Briefcase className="w-5 h-5" />
-                  <span>Gestionar Equipo de Ventas</span>
-                </button>
-              </div>
-            )}
 
             <div className="glass-panel rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Solicitudes Recientes</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-4">Solicitudes Recientes</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="text-slate-400 border-b border-dark-border">
+                    <tr className="text-muted-foreground border-b border-border">
                       <th className="pb-3 pl-2">ID</th>
                       <th className="pb-3">Cliente</th>
                       <th className="pb-3">Vehículo</th>
@@ -138,12 +131,12 @@ const DealerDashboard = () => {
                       <th className="pb-3">Fecha</th>
                     </tr>
                   </thead>
-                  <tbody className="text-slate-300">
+                  <tbody className="text-muted-foreground">
                     {requests.map(req => {
                       const client = clients.find(c => c.id === req.clientId);
                       const vehicle = vehicles.find(v => v.id === req.vehicleId);
                       return (
-                        <tr key={req.id} className="border-b border-dark-border/50 hover:bg-white/5">
+                        <tr key={req.id} className="border-b border-border/50 hover:bg-muted/50">
                           <td className="py-4 pl-2">#{req.id.toString().slice(-4)}</td>
                           <td className="py-4">{client?.name}</td>
                           <td className="py-4">{vehicle?.make} {vehicle?.model}</td>
@@ -154,7 +147,7 @@ const DealerDashboard = () => {
                     })}
                     {requests.length === 0 && (
                       <tr>
-                        <td colSpan="5" className="py-8 text-center text-slate-500">No hay solicitudes activas</td>
+                        <td colSpan="5" className="py-8 text-center text-muted-foreground">No hay solicitudes activas</td>
                       </tr>
                     )}
                   </tbody>
@@ -204,10 +197,10 @@ const DealerDashboard = () => {
         {activeTab === 'clients' && (
           <div className="space-y-6">
             <div className="glass-panel p-6 rounded-xl">
-              <h3 className="text-lg font-semibold text-white mb-4">Registrar Nuevo Cliente</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-4">Registrar Nuevo Cliente</h3>
               <form onSubmit={handleAddClient} className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Nombre Completo</label>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Nombre Completo</label>
                   <input
                     required
                     placeholder="Ej. Juan Pérez"
@@ -218,7 +211,7 @@ const DealerDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Cédula / ID</label>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Cédula / ID</label>
                   <input
                     required
                     placeholder="Ej. 1234567890"
@@ -229,7 +222,7 @@ const DealerDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Teléfono</label>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Teléfono</label>
                   <input
                     required
                     placeholder="Ej. +57 300 123 4567"
@@ -240,7 +233,7 @@ const DealerDashboard = () => {
                 </div>
 
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Correo Electrónico</label>
                   <input
                     required
                     type="email"
@@ -251,11 +244,11 @@ const DealerDashboard = () => {
                   />
                 </div>
 
-                <div className="col-span-2 border-t border-dark-border my-2 pt-4">
-                  <p className="text-sm text-primary-400 font-medium mb-4">Credenciales de Acceso</p>
+                <div className="col-span-2 border-t border-border my-2 pt-4">
+                  <p className="text-sm text-primary font-medium mb-4">Credenciales de Acceso</p>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-1">Nombre de Usuario</label>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">Nombre de Usuario</label>
                       <input
                         required
                         placeholder="Usuario para login"
@@ -265,7 +258,7 @@ const DealerDashboard = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">Contraseña</label>
                       <input
                         required
                         type="password"
@@ -287,27 +280,27 @@ const DealerDashboard = () => {
             </div>
 
             <div className="glass-panel rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Cartera de Clientes</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-4">Cartera de Clientes</h3>
               <div className="grid grid-cols-2 gap-4">
                 {clients.map(client => (
-                  <div key={client.id} className="p-4 border border-dark-border rounded-lg flex flex-col gap-2 hover:bg-white/5 transition-colors">
+                  <div key={client.id} className="p-4 border border-border rounded-lg flex flex-col gap-2 hover:bg-muted/50 transition-colors">
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-bold text-slate-200">{client.name}</p>
-                        <p className="text-sm text-slate-400">{client.email}</p>
-                        <p className="text-xs text-slate-500 mt-1">ID: {client.idNumber || 'N/A'}</p>
+                        <p className="font-bold text-foreground">{client.name}</p>
+                        <p className="text-sm text-muted-foreground">{client.email}</p>
+                        <p className="text-xs text-muted-foreground mt-1">ID: {client.idNumber || 'N/A'}</p>
                       </div>
-                      <span className="px-2 py-1 bg-green-500/20 text-green-400 text-xs rounded-full">Activo</span>
+                      <span className="px-2 py-1 bg-green-500/20 text-green-600 text-xs rounded-full">Activo</span>
                     </div>
 
-                    <div className="mt-2 pt-2 border-t border-dark-border/50 grid grid-cols-2 gap-2 text-xs">
-                      <div className="bg-dark-bg/50 p-2 rounded">
-                        <span className="text-slate-500 block">Usuario</span>
-                        <span className="text-slate-300 font-mono">{client.username || 'N/A'}</span>
+                    <div className="mt-2 pt-2 border-t border-border/50 grid grid-cols-2 gap-2 text-xs">
+                      <div className="bg-muted/50 p-2 rounded">
+                        <span className="text-muted-foreground block">Usuario</span>
+                        <span className="text-foreground font-mono">{client.username || 'N/A'}</span>
                       </div>
-                      <div className="bg-dark-bg/50 p-2 rounded">
-                        <span className="text-slate-500 block">Contraseña</span>
-                        <span className="text-slate-300 font-mono">{client.password || '••••••'}</span>
+                      <div className="bg-muted/50 p-2 rounded">
+                        <span className="text-muted-foreground block">Contraseña</span>
+                        <span className="text-foreground font-mono">{client.password || '••••••'}</span>
                       </div>
                     </div>
                   </div>
@@ -317,13 +310,80 @@ const DealerDashboard = () => {
           </div>
         )}
 
-        {activeTab === 'sellers' && isManager && (
+        {activeTab === 'settings' && isManager && (
           <div className="space-y-6">
+            {/* Dealer Information Section */}
             <div className="glass-panel p-6 rounded-xl">
-              <h3 className="text-lg font-semibold text-white mb-4">Registrar Nuevo Vendedor</h3>
-              <form onSubmit={handleAddSeller} className="grid grid-cols-2 gap-4">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-primary/20 rounded-lg">
+                  <Building2 className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">Información del Concesionario</h3>
+                  <p className="text-sm text-muted-foreground">Configura los datos de tu empresa</p>
+                </div>
+              </div>
+              <form className="grid grid-cols-2 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Nombre Completo</label>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Nombre del Concesionario</label>
+                  <input
+                    placeholder="Ej. AutoMax S.A."
+                    className="input-field pl-4"
+                    value={dealerInfo.name}
+                    onChange={e => setDealerInfo({ ...dealerInfo, name: e.target.value })}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Dirección</label>
+                  <input
+                    placeholder="Ej. Av. Principal #123, Ciudad"
+                    className="input-field pl-4"
+                    value={dealerInfo.address}
+                    onChange={e => setDealerInfo({ ...dealerInfo, address: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Teléfono</label>
+                  <input
+                    placeholder="Ej. +57 300 123 4567"
+                    className="input-field pl-4"
+                    value={dealerInfo.phone}
+                    onChange={e => setDealerInfo({ ...dealerInfo, phone: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Email Corporativo</label>
+                  <input
+                    type="email"
+                    placeholder="contacto@concesionario.com"
+                    className="input-field pl-4"
+                    value={dealerInfo.email}
+                    onChange={e => setDealerInfo({ ...dealerInfo, email: e.target.value })}
+                  />
+                </div>
+                <div className="col-span-2 flex justify-end mt-4">
+                  <button type="button" className="btn-primary flex items-center gap-2">
+                    <Building2 className="w-4 h-4" /> Guardar Cambios
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Sellers Management Section */}
+            <div className="glass-panel p-6 rounded-xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-3 bg-primary/20 rounded-lg">
+                  <Briefcase className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">Gestión de Vendedores</h3>
+                  <p className="text-sm text-muted-foreground">Administra tu equipo de ventas</p>
+                </div>
+              </div>
+
+              <form onSubmit={handleAddSeller} className="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-border">
+                <div className="col-span-2">
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Nombre Completo</label>
                   <input
                     required
                     placeholder="Ej. Ana López"
@@ -334,7 +394,7 @@ const DealerDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Teléfono</label>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Teléfono</label>
                   <input
                     required
                     placeholder="Ej. +57 300 123 4567"
@@ -345,7 +405,7 @@ const DealerDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
+                  <label className="block text-sm font-medium text-muted-foreground mb-1">Correo Electrónico</label>
                   <input
                     required
                     type="email"
@@ -356,11 +416,11 @@ const DealerDashboard = () => {
                   />
                 </div>
 
-                <div className="col-span-2 border-t border-dark-border my-2 pt-4">
-                  <p className="text-sm text-primary-400 font-medium mb-4">Credenciales de Acceso</p>
+                <div className="col-span-2 border-t border-border my-2 pt-4">
+                  <p className="text-sm text-primary font-medium mb-4">Credenciales de Acceso</p>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-1">Nombre de Usuario</label>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">Nombre de Usuario</label>
                       <input
                         required
                         placeholder="Usuario para login"
@@ -370,7 +430,7 @@ const DealerDashboard = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
+                      <label className="block text-sm font-medium text-muted-foreground mb-1">Contraseña</label>
                       <input
                         required
                         type="password"
@@ -389,39 +449,39 @@ const DealerDashboard = () => {
                   </button>
                 </div>
               </form>
-            </div>
 
-            <div className="glass-panel rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Equipo de Ventas</h3>
-              <div className="grid grid-cols-2 gap-4">
-                {sellers && sellers.map(seller => (
-                  <div key={seller.id} className="p-4 border border-dark-border rounded-lg flex flex-col gap-2 hover:bg-white/5 transition-colors">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-bold text-slate-200">{seller.name}</p>
-                        <p className="text-sm text-slate-400">{seller.email}</p>
-                        <p className="text-xs text-slate-500 mt-1">{seller.phone}</p>
+              <div>
+                <h4 className="text-md font-semibold text-foreground mb-4">Equipo de Ventas Actual</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  {sellers && sellers.map(seller => (
+                    <div key={seller.id} className="p-4 border border-border rounded-lg flex flex-col gap-2 hover:bg-muted/50 transition-colors">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-bold text-foreground">{seller.name}</p>
+                          <p className="text-sm text-muted-foreground">{seller.email}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{seller.phone}</p>
+                        </div>
+                        <span className="px-2 py-1 bg-blue-500/20 text-blue-600 text-xs rounded-full">Vendedor</span>
                       </div>
-                      <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">Vendedor</span>
-                    </div>
 
-                    <div className="mt-2 pt-2 border-t border-dark-border/50 grid grid-cols-2 gap-2 text-xs">
-                      <div className="bg-dark-bg/50 p-2 rounded">
-                        <span className="text-slate-500 block">Usuario</span>
-                        <span className="text-slate-300 font-mono">{seller.username || 'N/A'}</span>
-                      </div>
-                      <div className="bg-dark-bg/50 p-2 rounded">
-                        <span className="text-slate-500 block">Contraseña</span>
-                        <span className="text-slate-300 font-mono">{seller.password || '••••••'}</span>
+                      <div className="mt-2 pt-2 border-t border-border/50 grid grid-cols-2 gap-2 text-xs">
+                        <div className="bg-muted/50 p-2 rounded">
+                          <span className="text-muted-foreground block">Usuario</span>
+                          <span className="text-foreground font-mono">{seller.username || 'N/A'}</span>
+                        </div>
+                        <div className="bg-muted/50 p-2 rounded">
+                          <span className="text-muted-foreground block">Contraseña</span>
+                          <span className="text-foreground font-mono">{seller.password || '••••••'}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-                {(!sellers || sellers.length === 0) && (
-                  <div className="col-span-2 text-center py-8 text-slate-500">
-                    No hay vendedores registrados
-                  </div>
-                )}
+                  ))}
+                  {(!sellers || sellers.length === 0) && (
+                    <div className="col-span-2 text-center py-8 text-muted-foreground">
+                      No hay vendedores registrados
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -431,16 +491,16 @@ const DealerDashboard = () => {
           <div className="max-w-2xl mx-auto">
             <div className="glass-panel p-8 rounded-2xl">
               <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-primary-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FileText className="w-8 h-8 text-primary-500" />
+                <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-8 h-8 text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold text-white">Nueva Solicitud de Crédito</h2>
-                <p className="text-slate-400">Vincular un cliente con un vehículo para iniciar el proceso</p>
+                <h2 className="text-2xl font-bold text-foreground">Nueva Solicitud de Crédito</h2>
+                <p className="text-muted-foreground">Vincular un cliente con un vehículo para iniciar el proceso</p>
               </div>
 
               <form onSubmit={handleCreateRequest} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Seleccionar Cliente</label>
+                  <label className="block text-sm font-medium text-muted-foreground mb-2">Seleccionar Cliente</label>
                   <select required className="input-field pl-4" value={selectedClient} onChange={e => setSelectedClient(e.target.value)}>
                     <option value="">-- Seleccione un cliente --</option>
                     {clients.map(c => <option key={c.id} value={c.id}>{c.name} - {c.email}</option>)}
@@ -448,7 +508,7 @@ const DealerDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Seleccionar Vehículo</label>
+                  <label className="block text-sm font-medium text-muted-foreground mb-2">Seleccionar Vehículo</label>
                   <select required className="input-field pl-4" value={selectedVehicle} onChange={e => setSelectedVehicle(e.target.value)}>
                     <option value="">-- Seleccione un vehículo --</option>
                     {vehicles.map(v => <option key={v.id} value={v.id}>{v.make} {v.model} ({v.year}) - ${v.price}</option>)}
@@ -473,7 +533,7 @@ const DealerDashboard = () => {
 const NavButton = ({ active, onClick, icon, label }) => (
   <button
     onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${active ? 'bg-primary-600 text-white shadow-lg shadow-primary-900/20' : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'}`}
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${active ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20' : 'text-muted-foreground hover:bg-accent hover:text-foreground'}`}
   >
     {icon}
     <span className="font-medium">{label}</span>
@@ -483,10 +543,10 @@ const NavButton = ({ active, onClick, icon, label }) => (
 const StatCard = ({ title, value, icon }) => (
   <div className="glass-panel p-6 rounded-xl flex items-center justify-between">
     <div>
-      <p className="text-slate-400 text-sm mb-1">{title}</p>
-      <p className="text-3xl font-bold text-white">{value}</p>
+      <p className="text-muted-foreground text-sm mb-1">{title}</p>
+      <p className="text-3xl font-bold text-foreground">{value}</p>
     </div>
-    <div className="p-3 bg-white/5 rounded-lg">{icon}</div>
+    <div className="p-3 bg-muted/50 rounded-lg">{icon}</div>
   </div>
 );
 
@@ -495,8 +555,8 @@ export const StatusBadge = ({ status }) => {
     pending_docs: 'bg-yellow-500/20 text-yellow-400',
     review: 'bg-blue-500/20 text-blue-400',
     approved: 'bg-green-500/20 text-green-400',
-    rejected: 'bg-red-500/20 text-red-400',
-    conditioned: 'bg-orange-500/20 text-orange-400',
+    rejected: 'bg-red-500/20 text-red-600',
+    conditioned: 'bg-orange-500/20 text-orange-600',
   };
   const labels = {
     pending_docs: 'Pendiente Docs',
@@ -506,7 +566,7 @@ export const StatusBadge = ({ status }) => {
     conditioned: 'Condicionado',
   };
   return (
-    <span className={`px-3 py-1 rounded-full text-xs font-medium ${styles[status] || 'bg-slate-500/20 text-slate-400'}`}>
+    <span className={`px-3 py-1 rounded-full text-xs font-medium ${styles[status] || 'bg-muted text-muted-foreground'}`}>
       {labels[status] || status}
     </span>
   );

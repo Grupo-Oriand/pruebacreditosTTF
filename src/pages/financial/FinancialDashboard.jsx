@@ -5,7 +5,9 @@ import { StatusBadge } from '../dealer/DealerDashboard';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
 import { cn } from '@/lib/utils';
+import { EvaluationModal } from '@/components/financial/EvaluationModal';
 
 const FinancialDashboard = () => {
   const { user, requests, clients, vehicles, updateRequestStatus, logout } = useApp();
@@ -114,7 +116,24 @@ const FinancialDashboard = () => {
   const handleDecision = (status) => {
     if (selectedRequest) {
       updateRequestStatus(selectedRequest.id, status);
-      setSelectedRequest(null);
+      // Optional: Close modal or move to next
+      // setSelectedRequest(null); 
+    }
+  };
+
+  const handleNext = () => {
+    if (!selectedRequest) return;
+    const currentIndex = poolRequests.findIndex(r => r.id === selectedRequest.id);
+    if (currentIndex < poolRequests.length - 1) {
+      setSelectedRequest(poolRequests[currentIndex + 1]);
+    }
+  };
+
+  const handlePrev = () => {
+    if (!selectedRequest) return;
+    const currentIndex = poolRequests.findIndex(r => r.id === selectedRequest.id);
+    if (currentIndex > 0) {
+      setSelectedRequest(poolRequests[currentIndex - 1]);
     }
   };
 
@@ -254,7 +273,7 @@ const FinancialDashboard = () => {
               />
               <FilterButton
                 status="score_medium"
-                icon={<div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-blue-200" />}
+                icon={<div className="w-4 h-4 rounded-full bg-yellow-500 border-2 border-yellow-200" />}
                 label="Medio (40-79)"
                 count={getScoreCount(40, 79)}
               />
@@ -310,7 +329,7 @@ const FinancialDashboard = () => {
                       <div className={cn(
                         "w-1.5 self-stretch rounded-full",
                         creditScore.score >= 80 ? "bg-green-500" :
-                          creditScore.score >= 60 ? "bg-blue-500" :
+                          creditScore.score >= 60 ? "bg-yellow-500" :
                             creditScore.score >= 40 ? "bg-orange-500" :
                               "bg-red-500"
                       )} />
@@ -335,14 +354,14 @@ const FinancialDashboard = () => {
                             <span className="text-[10px] font-medium text-muted-foreground">Score:</span>
                             <span className={cn("text-xs font-bold",
                               creditScore.score >= 80 ? "text-green-600" :
-                                creditScore.score >= 60 ? "text-blue-600" :
+                                creditScore.score >= 60 ? "text-yellow-600" :
                                   creditScore.score >= 40 ? "text-orange-600" :
                                     "text-red-600"
                             )}>{creditScore.score}</span>
                             <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
                               <div className={cn("h-full rounded-full",
                                 creditScore.score >= 80 ? "bg-green-500" :
-                                  creditScore.score >= 60 ? "bg-blue-500" :
+                                  creditScore.score >= 60 ? "bg-yellow-500" :
                                     creditScore.score >= 40 ? "bg-orange-500" :
                                       "bg-red-500"
                               )} style={{ width: `${creditScore.score}%` }} />
@@ -373,298 +392,24 @@ const FinancialDashboard = () => {
           )}
         </div>
 
-        {/* Detail Column */}
-        <div className="w-[450px] bg-card/50 border-l overflow-y-auto flex-shrink-0">
-          {selectedRequest ? (
-            <div className="p-6 space-y-6">
-              {/* Header */}
-              <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-2xl font-bold">Evaluación</h2>
-                  <p className="text-muted-foreground text-sm">Solicitud #{selectedRequest.id}</p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setSelectedRequest(null)}
-                >
-                  <X className="w-5 h-5" />
-                </Button>
-              </div>
-
-              {/* Credit Score Breakdown */}
-              {(() => {
-                const client = clients.find(c => c.id === selectedRequest.clientId);
-                const vehicle = vehicles.find(v => v.id === selectedRequest.vehicleId);
-                const creditScore = calculateCreditScore(selectedRequest, client, vehicle);
-
-                return (
-                  <Card className={cn(
-                    "border-l-4",
-                    creditScore.score >= 80 ? "border-l-green-500 bg-green-500/5" :
-                      creditScore.score >= 60 ? "border-l-blue-500 bg-blue-500/5" :
-                        creditScore.score >= 40 ? "border-l-orange-500 bg-orange-500/5" :
-                          "border-l-red-500 bg-red-500/5"
-                  )}>
-                    <CardHeader>
-                      <CardTitle className="text-sm flex items-center justify-between uppercase tracking-wider">
-                        <span className="flex items-center gap-2">
-                          <DollarSign className="w-4 h-4 text-primary" />
-                          Credit Score
-                        </span>
-                        <span className={cn(
-                          "text-2xl font-bold",
-                          creditScore.score >= 80 ? "text-green-500" :
-                            creditScore.score >= 60 ? "text-blue-500" :
-                              creditScore.score >= 40 ? "text-orange-500" :
-                                "text-red-500"
-                        )}>
-                          {creditScore.score}/100
-                        </span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <div className="flex justify-between text-xs mb-1">
-                          <span className="text-muted-foreground">Calificación</span>
-                          <span className={cn(
-                            "font-bold",
-                            creditScore.score >= 80 ? "text-green-500" :
-                              creditScore.score >= 60 ? "text-blue-500" :
-                                creditScore.score >= 40 ? "text-orange-500" :
-                                  "text-red-500"
-                          )}>
-                            {creditScore.rating}
-                          </span>
-                        </div>
-                        <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className={cn(
-                              "h-full transition-all",
-                              creditScore.score >= 80 ? "bg-green-500" :
-                                creditScore.score >= 60 ? "bg-blue-500" :
-                                  creditScore.score >= 40 ? "bg-orange-500" :
-                                    "bg-red-500"
-                            )}
-                            style={{ width: `${creditScore.score}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 pt-2 border-t">
-                        <p className="text-xs font-bold text-muted-foreground uppercase">Desglose</p>
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="text-muted-foreground">Perfil vs Vehículo</span>
-                            <span className="font-medium">{creditScore.breakdown.profileVehicleMatch}/35</span>
-                          </div>
-                          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-primary transition-all"
-                              style={{ width: `${(creditScore.breakdown.profileVehicleMatch / 35) * 100}%` }}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="text-muted-foreground">Calidad de Información</span>
-                            <span className="font-medium">{creditScore.breakdown.informationQuality}/35</span>
-                          </div>
-                          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-primary transition-all"
-                              style={{ width: `${(creditScore.breakdown.informationQuality / 35) * 100}%` }}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="text-muted-foreground">Documentos Cargados</span>
-                            <span className="font-medium">{creditScore.breakdown.dataCompleteness}/30</span>
-                          </div>
-                          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-primary transition-all"
-                              style={{ width: `${(creditScore.breakdown.dataCompleteness / 30) * 100}%` }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })()}
-
-              {/* Client Profile */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm flex items-center gap-2 uppercase tracking-wider">
-                    <User className="w-4 h-4 text-primary" /> Cliente
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {(() => {
-                    const client = clients.find(c => c.id === selectedRequest.clientId);
-                    return (
-                      <>
-                        <InfoRow label="Nombre" value={client?.name} />
-                        <InfoRow label="Email" value={client?.email} />
-                        <InfoRow label="Teléfono" value={client?.phone} />
-                        <InfoRow label="ID" value={client?.idNumber || 'N/A'} />
-                        <div className="pt-2 border-t">
-                          <InfoRow label="Score (Sim)" value="750" highlight />
-                        </div>
-                      </>
-                    );
-                  })()}
-                </CardContent>
-              </Card>
-
-              {/* Vehicle Details */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm flex items-center gap-2 uppercase tracking-wider">
-                    <Car className="w-4 h-4 text-primary" /> Vehículo
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {(() => {
-                    const vehicle = vehicles.find(v => v.id === selectedRequest.vehicleId);
-                    return (
-                      <>
-                        <div className="aspect-video rounded-lg overflow-hidden mb-3">
-                          <img src={vehicle?.image} alt="Car" className="w-full h-full object-cover" />
-                        </div>
-                        <InfoRow label="Marca" value={vehicle?.make} />
-                        <InfoRow label="Modelo" value={vehicle?.model} />
-                        <InfoRow label="Año" value={vehicle?.year} />
-                        <InfoRow label="Precio" value={`$${vehicle?.price.toLocaleString()}`} />
-                      </>
-                    );
-                  })()}
-                </CardContent>
-              </Card>
-
-              {/* Documents Review */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm flex items-center gap-2 uppercase tracking-wider">
-                    <FileText className="w-4 h-4 text-primary" /> Documentos
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <DocPreviewRow
-                    name="DNI / Pasaporte"
-                    verified={selectedRequest.documents?.idCard}
-                    onView={() => window.open(selectedRequest.documentUrls?.idCard || 'https://placehold.co/600x400/png?text=DNI+Documento', '_blank')}
-                  />
-                  <DocPreviewRow
-                    name="Recibos de Sueldo"
-                    verified={selectedRequest.documents?.incomeProof}
-                    onView={() => window.open(selectedRequest.documentUrls?.incomeProof || 'https://placehold.co/600x800/png?text=Recibo+de+Sueldo', '_blank')}
-                  />
-                  <DocPreviewRow
-                    name="Comp. Domicilio"
-                    verified={selectedRequest.documents?.addressProof}
-                    onView={() => window.open(selectedRequest.documentUrls?.addressProof || 'https://placehold.co/600x800/png?text=Comprobante+Domicilio', '_blank')}
-                  />
-                  <DocPreviewRow
-                    name="Proforma Vehículo"
-                    verified={selectedRequest.documents?.vehicleProforma}
-                    onView={() => window.open(selectedRequest.documentUrls?.vehicleProforma || 'https://placehold.co/600x800/png?text=Proforma+Vehiculo', '_blank')}
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Action Buttons */}
-              <div className="pt-4 border-t">
-                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3 text-center">
-                  Decisión Final
-                </h3>
-                <div className="grid grid-cols-3 gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => handleDecision('rejected')}
-                    className="flex-col h-auto py-3 border-red-500/30 text-red-400 hover:bg-red-500/10 gap-1"
-                  >
-                    <XCircle className="w-5 h-5" />
-                    <span className="text-[10px] font-bold uppercase">Rechazar</span>
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    onClick={() => handleDecision('review')}
-                    className="flex-col h-auto py-3 border-orange-500/30 text-orange-400 hover:bg-orange-500/10 gap-1"
-                  >
-                    <AlertTriangle className="w-5 h-5" />
-                    <span className="text-[10px] font-bold uppercase">En Revisión</span>
-                  </Button>
-
-                  <Button
-                    onClick={() => handleDecision('approved')}
-                    className="flex-col h-auto py-3 bg-green-600 hover:bg-green-500 gap-1"
-                  >
-                    <CheckCircle className="w-5 h-5" />
-                    <span className="text-[10px] font-bold uppercase">Aprobar</span>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="h-full flex flex-col items-center justify-center text-muted-foreground p-8 text-center">
-              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-                <FileText className="w-8 h-8 opacity-50" />
-              </div>
-              <p className="text-lg font-medium">Detalle de Solicitud</p>
-              <p className="text-sm mt-2">
-                Selecciona una solicitud de la lista para ver su evaluación completa.
-              </p>
-            </div>
-          )}
-        </div>
       </main>
+
+      <EvaluationModal
+        isOpen={!!selectedRequest}
+        onClose={() => setSelectedRequest(null)}
+        request={selectedRequest}
+        client={selectedRequest ? clients.find(c => c.id === selectedRequest.clientId) : null}
+        vehicle={selectedRequest ? vehicles.find(v => v.id === selectedRequest.vehicleId) : null}
+        onNext={handleNext}
+        onPrev={handlePrev}
+        hasPrev={selectedRequest && poolRequests.findIndex(r => r.id === selectedRequest.id) > 0}
+        hasNext={selectedRequest && poolRequests.findIndex(r => r.id === selectedRequest.id) < poolRequests.length - 1}
+        onDecision={handleDecision}
+      />
     </div>
   );
 };
 
-const InfoRow = ({ label, value, highlight }) => (
-  <div className="flex justify-between items-center text-sm">
-    <span className="text-muted-foreground">{label}</span>
-    <span className={cn("font-medium", highlight && "text-green-400")}>
-      {value}
-    </span>
-  </div>
-);
 
-const DocPreviewRow = ({ name, verified, onView }) => (
-  <div className="flex items-center justify-between p-3 rounded-lg bg-muted border">
-    <div className="flex items-center gap-3">
-      <FileText className={cn("w-4 h-4", verified ? "text-primary" : "text-muted-foreground")} />
-      <span className={cn("text-sm", verified ? "" : "text-muted-foreground")}>
-        {name}
-      </span>
-    </div>
-    <div className="flex items-center gap-2">
-      {verified ? (
-        <>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 hover:bg-primary/10 hover:text-primary"
-            onClick={onView}
-            title="Ver documento"
-          >
-            <Eye className="w-4 h-4" />
-          </Button>
-          <CheckCircle className="w-4 h-4 text-green-500" />
-        </>
-      ) : (
-        <Clock className="w-4 h-4 text-muted-foreground" />
-      )}
-    </div>
-  </div>
-);
 
 export default FinancialDashboard;

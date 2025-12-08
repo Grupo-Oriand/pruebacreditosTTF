@@ -58,18 +58,6 @@ export const ClientSidebar = ({ currentClient, activeTab, setActiveTab, onLogout
           label="Historial de Solicitudes"
         />
       </nav>
-
-      {/* Logout */}
-      <div className="p-6 border-t">
-        <Button
-          variant="ghost"
-          onClick={onLogout}
-          className="w-full justify-center gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-        >
-          <LogOut className="w-5 h-5" />
-          <span>Cerrar Sesión</span>
-        </Button>
-      </div>
     </div>
   );
 };

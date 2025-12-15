@@ -65,6 +65,19 @@ export const mockUsers = [
         position: 'Coordinadora de Créditos'
     },
 
+    // Gerente de Créditos
+    {
+        id: 8,
+        username: 'GerenteCreditos',
+        password: 'creditos123',
+        email: 'gerente.creditos@financiera.com',
+        fullName: 'Gerente de Créditos',
+        role: 'financial',
+        companyName: 'Financiera Central',
+        phone: '+58 414 888 9999',
+        position: 'Gerente de Créditos'
+    },
+
     // Gerente de Concesionario
     {
         id: 5,

@@ -86,6 +86,18 @@ El sistema ahora detecta automáticamente el tipo de usuario basándose en las c
 
 ---
 
+### 🏦 Institución Financiera #4 (Financiera Central)
+**Usuario:** `GerenteCreditos`  
+**Contraseña:** `creditos123`  
+**Nombre:** Gerente de Créditos  
+**Empresa:** Financiera Central  
+**Email:** gerente.creditos@financiera.com  
+**Teléfono:** +58 414 888 9999  
+**Cargo:** Gerente de Créditos  
+**Dashboard:** `/financial`
+
+---
+
 ## Flujo de Autenticación
 
 1. **Login:** El usuario ingresa sus credenciales (username y password)

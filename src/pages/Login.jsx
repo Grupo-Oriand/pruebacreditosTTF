@@ -70,7 +70,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=1920')] bg-cover bg-center relative">
+    <div className="min-h-screen flex items-center justify-center bg-cover bg-center relative">
       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm"></div>
 
       <div className="relative z-10 w-full max-w-md p-8 glass-panel rounded-2xl">

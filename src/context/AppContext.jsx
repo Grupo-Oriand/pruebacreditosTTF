@@ -8,17 +8,58 @@ export const AppProvider = ({ children }) => {
   // Mock Data
   const [user, setUser] = useState(null); // Current logged in user
 
-  // Helper para inicializar estado desde localStorage
+  // Versión de datos para forzar migración cuando sea necesario
+  const DATA_VERSION = '2.0-toyota-only';
+
+  // Helper para inicializar estado desde localStorage con validación
   const getInitialState = (key, defaultValue) => {
+    // Verificar versión de datos
+    const savedVersion = localStorage.getItem('dataVersion');
+
+    // Si la versión no coincide, limpiar todo y usar valores por defecto
+    if (savedVersion !== DATA_VERSION) {
+      console.log('🔄 Migrando datos a versión:', DATA_VERSION);
+      localStorage.clear();
+      localStorage.setItem('dataVersion', DATA_VERSION);
+      return defaultValue;
+    }
+
     const saved = localStorage.getItem(key);
-    return saved ? JSON.parse(saved) : defaultValue;
+    if (!saved) return defaultValue;
+
+    try {
+      const parsed = JSON.parse(saved);
+
+      // Validación específica para vehículos: solo Toyota
+      if (key === 'vehicles') {
+        const validVehicles = parsed.filter(v => v.make === 'Toyota');
+        if (validVehicles.length !== parsed.length) {
+          console.log('🚗 Limpiando vehículos no-Toyota');
+          return defaultValue;
+        }
+        return validVehicles.length > 0 ? validVehicles : defaultValue;
+      }
+
+      // Validación para solicitudes: verificar que los vehículos existan
+      if (key === 'requests') {
+        // Resetear a solicitudes de prueba si hay inconsistencias
+        return defaultValue;
+      }
+
+      return parsed;
+    } catch (e) {
+      console.error('Error parsing localStorage:', e);
+      return defaultValue;
+    }
   };
 
   // Database Simulation con persistencia
   const [vehicles, setVehicles] = useState(() => getInitialState('vehicles', [
     { id: 1, make: 'Toyota', model: 'Corolla', year: 2024, price: 25000, image: 'https://images.unsplash.com/photo-1517365830460-955ce3ccd263?auto=format&fit=crop&q=80&w=1000' },
-    { id: 2, make: 'Ford', model: 'Mustang', year: 2023, price: 45000, image: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=1000' },
-    { id: 3, make: 'Tesla', model: 'Model 3', year: 2024, price: 42000, image: 'https://images.unsplash.com/photo-1536700503339-1e4b06520771?auto=format&fit=crop&q=80&w=1000' },
+    { id: 2, make: 'Toyota', model: 'Camry', year: 2024, price: 32000, image: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&q=80&w=1000' },
+    { id: 3, make: 'Toyota', model: 'RAV4', year: 2024, price: 35000, image: 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&q=80&w=1000' },
+    { id: 4, make: 'Toyota', model: 'Hilux', year: 2024, price: 38000, image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=1000' },
+    { id: 5, make: 'Toyota', model: 'Land Cruiser', year: 2024, price: 85000, image: 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&q=80&w=1000' },
   ]));
 
   const [clients, setClients] = useState(() => getInitialState('clients', [
@@ -52,7 +93,10 @@ export const AppProvider = ({ children }) => {
   const [notifications, setNotifications] = useState(() => getInitialState('notifications', []));
 
   // Guardar en localStorage cuando cambien los datos
-  useEffect(() => { localStorage.setItem('vehicles', JSON.stringify(vehicles)); }, [vehicles]);
+  useEffect(() => {
+    localStorage.setItem('dataVersion', DATA_VERSION);
+    localStorage.setItem('vehicles', JSON.stringify(vehicles));
+  }, [vehicles]);
   useEffect(() => { localStorage.setItem('clients', JSON.stringify(clients)); }, [clients]);
   useEffect(() => { localStorage.setItem('sellers', JSON.stringify(sellers)); }, [sellers]);
   useEffect(() => { localStorage.setItem('requests', JSON.stringify(requests)); }, [requests]);

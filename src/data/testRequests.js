@@ -33,7 +33,7 @@ export const testRequests = [
   {
     id: 1002,
     clientId: 1, // Juan Pérez (cliente1)
-    vehicleId: 2, // Ford Mustang
+    vehicleId: 2, // Toyota Camry
     status: 'review', // 👈 CAMBIA ESTE ESTADO PARA PROBAR
     date: '2024-11-25T14:30:00.000Z',
     documents: {
@@ -49,7 +49,7 @@ export const testRequests = [
   {
     id: 1003,
     clientId: 1, // Juan Pérez (cliente1)
-    vehicleId: 3, // Tesla Model 3
+    vehicleId: 3, // Toyota RAV4
     status: 'approved', // 👈 CAMBIA ESTE ESTADO PARA PROBAR
     date: '2024-11-20T09:15:00.000Z',
     documents: {
